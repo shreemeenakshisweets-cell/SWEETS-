@@ -1,0 +1,131 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-heading);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Shree Meenakshi brand palette — antique gold & cream, sampled from the logo */
+  --background: #fdfbf5;
+  --foreground: #241d12;
+  --card: #ffffff;
+  --card-foreground: #241d12;
+  --popover: #ffffff;
+  --popover-foreground: #241d12;
+  --primary: #7a6118;
+  --primary-foreground: #fffbef;
+  --secondary: #f3e7c3;
+  --secondary-foreground: #4a3b0e;
+  --muted: #f5f1e6;
+  --muted-foreground: #7a7060;
+  --accent: #b3401f;
+  --accent-foreground: #fff7ee;
+  --destructive: #c0392b;
+  --border: #e7dec8;
+  --input: #e7dec8;
+  --ring: #7a6118;
+  --chart-1: #a6862f;
+  --chart-2: #c2521f;
+  --chart-3: #6b7a3a;
+  --chart-4: #7a2e2e;
+  --chart-5: #8c7355;
+  --radius: 0.85rem;
+  --sidebar: #fffdf7;
+  --sidebar-foreground: #241d12;
+  --sidebar-primary: #7a6118;
+  --sidebar-primary-foreground: #fffbef;
+  --sidebar-accent: #f3e7c3;
+  --sidebar-accent-foreground: #4a3b0e;
+  --sidebar-border: #e7dec8;
+  --sidebar-ring: #7a6118;
+}
+
+.dark {
+  --background: #17130d;
+  --foreground: #f3e9ce;
+  --card: #211b12;
+  --card-foreground: #f3e9ce;
+  --popover: #211b12;
+  --popover-foreground: #f3e9ce;
+  --primary: #d8b84a;
+  --primary-foreground: #1d1608;
+  --secondary: #2b2417;
+  --secondary-foreground: #efe2be;
+  --muted: #241e14;
+  --muted-foreground: #b3a588;
+  --accent: #e2723a;
+  --accent-foreground: #1d1608;
+  --destructive: #e5534b;
+  --border: color-mix(in oklch, #f3e9ce 12%, transparent);
+  --input: color-mix(in oklch, #f3e9ce 15%, transparent);
+  --ring: #d8b84a;
+  --chart-1: #d8b84a;
+  --chart-2: #e2723a;
+  --chart-3: #9db06a;
+  --chart-4: #c26a6a;
+  --chart-5: #b3a588;
+  --sidebar: #1c170f;
+  --sidebar-foreground: #f3e9ce;
+  --sidebar-primary: #d8b84a;
+  --sidebar-primary-foreground: #1d1608;
+  --sidebar-accent: #2b2417;
+  --sidebar-accent-foreground: #efe2be;
+  --sidebar-border: color-mix(in oklch, #f3e9ce 12%, transparent);
+  --sidebar-ring: #d8b84a;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
