@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { razorpay } from "@/lib/razorpay";
+import { getRazorpay } from "@/lib/razorpay";
 import { getCurrentUser } from "@/lib/auth";
 import { checkoutRequestSchema } from "@/lib/validation/checkout";
 import { validateCoupon } from "@/lib/data/coupon-validation";
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
 
   let razorpayOrder;
   try {
-    razorpayOrder = await razorpay.orders.create({
+    razorpayOrder = await getRazorpay().orders.create({
       amount: Math.round(totals.total * 100),
       currency: "INR",
       receipt: orderNumber,
