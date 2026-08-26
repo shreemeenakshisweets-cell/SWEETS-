@@ -13,7 +13,8 @@ import {
 
 type ActionResult = { error?: string; success?: true };
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+// `||` (not `??`) so an env var that's set-but-empty on the host still falls back.
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export async function signOutAction() {
   const supabase = await createClient();
