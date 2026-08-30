@@ -64,6 +64,7 @@ export function CartSheet() {
               Your cart is empty. Explore our menu to add something sweet.
             </p>
             <SheetClose
+              nativeButton={false}
               render={
                 <Link
                   href="/menu"
@@ -169,6 +170,7 @@ export function CartSheet() {
                 </div>
               </div>
               <SheetClose
+                nativeButton={false}
                 render={
                   <Link
                     href="/cart"
