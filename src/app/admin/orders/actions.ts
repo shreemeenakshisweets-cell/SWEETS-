@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { orderStatusUpdateSchema } from "@/lib/validation/admin";
+import { sendOrderStatusEmail } from "@/lib/notifications/order-email";
 
 type ActionResult = { error?: string };
 
@@ -28,6 +29,8 @@ export async function updateOrderStatusAction(input: unknown): Promise<ActionRes
       data: { orderId, status, note: note || null },
     }),
   ]);
+
+  await sendOrderStatusEmail(orderId, status);
 
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/orders");

@@ -3,6 +3,7 @@ import Razorpay from "razorpay";
 import { prisma } from "@/lib/prisma";
 import { createInvoiceForOrder } from "@/lib/data/admin/invoices";
 import { redeemCouponIfAny } from "@/lib/data/coupon-validation";
+import { sendOrderStatusEmail } from "@/lib/notifications/order-email";
 
 /**
  * Server-to-server durability fallback for payment confirmation, in case the
@@ -69,6 +70,8 @@ export async function POST(request: NextRequest) {
       await createInvoiceForOrder(tx, payment.order);
       await redeemCouponIfAny(tx, payment.order);
     });
+
+    await sendOrderStatusEmail(payment.orderId, "CONFIRMED");
   } else if (event.event === "payment.failed" && payment.status === "PENDING") {
     await prisma.payment.update({
       where: { id: payment.id },
