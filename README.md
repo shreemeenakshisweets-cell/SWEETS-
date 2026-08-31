@@ -283,3 +283,9 @@ prisma/
 - `nativeButton={false}` is set on every shadcn `Button` that renders as a
   `<Link>` via the `render` prop — Base UI's Button defaults to expecting a
   real `<button>` element and warns otherwise.
+- **Vercel env var changes:** clicking "Redeploy" on an *existing* deployment
+  can reuse that deployment's original environment variable snapshot rather
+  than picking up current Project Settings values. After changing env vars,
+  trigger a genuinely new deployment (push a commit) rather than redeploying
+  an old one, or the app can keep running against stale/missing values even
+  though the dashboard shows the new ones saved.
