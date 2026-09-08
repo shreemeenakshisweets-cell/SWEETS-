@@ -26,6 +26,7 @@ import {
 import { saveCouponAction } from "@/app/admin/coupons/actions";
 import { couponInputSchema, type CouponInput } from "@/lib/validation/admin";
 import type { Coupon } from "@/generated/prisma/client";
+import { getActionErrorMessage } from "@/lib/utils/errors";
 
 export function CouponFormDialog({ coupon, onSaved }: { coupon?: Coupon; onSaved: () => void }) {
   const [open, setOpen] = React.useState(false);
@@ -63,15 +64,19 @@ export function CouponFormDialog({ coupon, onSaved }: { coupon?: Coupon; onSaved
   });
 
   async function onSubmit(values: CouponInput) {
-    const result = await saveCouponAction(values);
-    if (result.error) {
-      toast.error(result.error);
-      return;
+    try {
+      const result = await saveCouponAction(values);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(coupon ? "Coupon updated" : "Coupon created");
+      setOpen(false);
+      reset();
+      onSaved();
+    } catch (error) {
+      toast.error(getActionErrorMessage(error));
     }
-    toast.success(coupon ? "Coupon updated" : "Coupon created");
-    setOpen(false);
-    reset();
-    onSaved();
   }
 
   return (

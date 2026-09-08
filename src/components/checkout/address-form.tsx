@@ -17,6 +17,7 @@ import {
 import { createAddressAction } from "@/app/(shop)/checkout/actions";
 import { addressInputSchema, type AddressInput } from "@/lib/validation/checkout";
 import type { Address } from "@/generated/prisma/client";
+import { getActionErrorMessage } from "@/lib/utils/errors";
 
 export function AddressForm({ onSaved }: { onSaved: (address: Address) => void }) {
   const {
@@ -31,13 +32,17 @@ export function AddressForm({ onSaved }: { onSaved: (address: Address) => void }
   });
 
   async function onSubmit(values: AddressInput) {
-    const result = await createAddressAction(values);
-    if (result.error || !result.address) {
-      toast.error(result.error ?? "Could not save address");
-      return;
+    try {
+      const result = await createAddressAction(values);
+      if (result.error || !result.address) {
+        toast.error(result.error ?? "Could not save address");
+        return;
+      }
+      toast.success("Address saved");
+      onSaved(result.address);
+    } catch (error) {
+      toast.error(getActionErrorMessage(error));
     }
-    toast.success("Address saved");
-    onSaved(result.address);
   }
 
   return (

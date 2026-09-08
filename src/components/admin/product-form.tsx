@@ -21,6 +21,7 @@ import { saveProductAction } from "@/app/admin/products/actions";
 import { productInputSchema, type ProductInput } from "@/lib/validation/admin";
 import type { Category, Product } from "@/generated/prisma/client";
 import type { ProductTag } from "@/types/catalog";
+import { getActionErrorMessage } from "@/lib/utils/errors";
 
 const ALL_TAGS: ProductTag[] = ["bestseller", "new", "spicy", "sugar-free", "festive", "limited"];
 
@@ -89,14 +90,18 @@ export function ProductForm({
   const selectedTags = watch("tags") ?? [];
 
   async function onSubmit(values: ProductInput) {
-    const result = await saveProductAction(values);
-    if (result.error) {
-      toast.error(result.error);
-      return;
+    try {
+      const result = await saveProductAction(values);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(product ? "Product updated" : "Product created");
+      router.push("/admin/products");
+      router.refresh();
+    } catch (error) {
+      toast.error(getActionErrorMessage(error));
     }
-    toast.success(product ? "Product updated" : "Product created");
-    router.push("/admin/products");
-    router.refresh();
   }
 
   return (

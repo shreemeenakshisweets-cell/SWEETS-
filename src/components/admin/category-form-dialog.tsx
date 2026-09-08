@@ -20,6 +20,7 @@ import {
 import { saveCategoryAction } from "@/app/admin/categories/actions";
 import { categoryInputSchema, type CategoryInput } from "@/lib/validation/admin";
 import type { Category } from "@/generated/prisma/client";
+import { getActionErrorMessage } from "@/lib/utils/errors";
 
 export function CategoryFormDialog({
   category,
@@ -59,15 +60,19 @@ export function CategoryFormDialog({
   });
 
   async function onSubmit(values: CategoryInput) {
-    const result = await saveCategoryAction(values);
-    if (result.error) {
-      toast.error(result.error);
-      return;
+    try {
+      const result = await saveCategoryAction(values);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(category ? "Category updated" : "Category created");
+      setOpen(false);
+      reset();
+      onSaved();
+    } catch (error) {
+      toast.error(getActionErrorMessage(error));
     }
-    toast.success(category ? "Category updated" : "Category created");
-    setOpen(false);
-    reset();
-    onSaved();
   }
 
   return (

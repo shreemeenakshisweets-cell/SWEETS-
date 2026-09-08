@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { GoogleButton } from "@/components/auth/google-button";
 import { signInAction } from "@/app/(auth)/actions";
 import { signInSchema, type SignInInput } from "@/lib/validation/auth";
+import { getActionErrorMessage } from "@/lib/utils/errors";
 
 export function LoginForm() {
   const router = useRouter();
@@ -26,14 +27,18 @@ export function LoginForm() {
   } = useForm<SignInInput>({ resolver: zodResolver(signInSchema) });
 
   async function onSubmit(values: SignInInput) {
-    const result = await signInAction(values);
-    if (result.error) {
-      toast.error(result.error);
-      return;
+    try {
+      const result = await signInAction(values);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Welcome back!");
+      router.push(next);
+      router.refresh();
+    } catch (error) {
+      toast.error(getActionErrorMessage(error));
     }
-    toast.success("Welcome back!");
-    router.push(next);
-    router.refresh();
   }
 
   return (

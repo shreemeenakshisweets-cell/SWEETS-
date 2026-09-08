@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requestPasswordResetAction } from "@/app/(auth)/actions";
 import { emailOnlySchema, type EmailOnlyInput } from "@/lib/validation/auth";
+import { getActionErrorMessage } from "@/lib/utils/errors";
 
 export function ResetPasswordForm() {
   const [sent, setSent] = React.useState(false);
@@ -21,12 +22,16 @@ export function ResetPasswordForm() {
   } = useForm<EmailOnlyInput>({ resolver: zodResolver(emailOnlySchema) });
 
   async function onSubmit(values: EmailOnlyInput) {
-    const result = await requestPasswordResetAction(values);
-    if (result.error) {
-      toast.error(result.error);
-      return;
+    try {
+      const result = await requestPasswordResetAction(values);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      setSent(true);
+    } catch (error) {
+      toast.error(getActionErrorMessage(error));
     }
-    setSent(true);
   }
 
   if (sent) {

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updatePasswordAction } from "@/app/(auth)/actions";
 import { newPasswordSchema, type NewPasswordInput } from "@/lib/validation/auth";
+import { getActionErrorMessage } from "@/lib/utils/errors";
 
 export function NewPasswordForm() {
   const router = useRouter();
@@ -19,14 +20,18 @@ export function NewPasswordForm() {
   } = useForm<NewPasswordInput>({ resolver: zodResolver(newPasswordSchema) });
 
   async function onSubmit(values: NewPasswordInput) {
-    const result = await updatePasswordAction(values);
-    if (result.error) {
-      toast.error(result.error);
-      return;
+    try {
+      const result = await updatePasswordAction(values);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Password updated. You're signed in.");
+      router.push("/account");
+      router.refresh();
+    } catch (error) {
+      toast.error(getActionErrorMessage(error));
     }
-    toast.success("Password updated. You're signed in.");
-    router.push("/account");
-    router.refresh();
   }
 
   return (

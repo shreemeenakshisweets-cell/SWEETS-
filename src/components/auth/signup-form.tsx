@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { GoogleButton } from "@/components/auth/google-button";
 import { signUpAction } from "@/app/(auth)/actions";
 import { signUpSchema, type SignUpInput } from "@/lib/validation/auth";
+import { getActionErrorMessage } from "@/lib/utils/errors";
 
 export function SignupForm() {
   const router = useRouter();
@@ -23,13 +24,17 @@ export function SignupForm() {
   } = useForm<SignUpInput>({ resolver: zodResolver(signUpSchema) });
 
   async function onSubmit(values: SignUpInput) {
-    const result = await signUpAction(values);
-    if (result.error) {
-      toast.error(result.error);
-      return;
+    try {
+      const result = await signUpAction(values);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Account created! Check your email to confirm your address.");
+      router.push("/login");
+    } catch (error) {
+      toast.error(getActionErrorMessage(error));
     }
-    toast.success("Account created! Check your email to confirm your address.");
-    router.push("/login");
   }
 
   return (
