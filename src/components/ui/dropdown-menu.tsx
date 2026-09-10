@@ -57,11 +57,15 @@ function DropdownMenuLabel({
   className,
   inset,
   ...props
-}: MenuPrimitive.GroupLabel.Props & {
+}: React.ComponentProps<"div"> & {
   inset?: boolean
 }) {
+  // Plain element, not MenuPrimitive.GroupLabel: that primitive requires a
+  // <Menu.Group>/<Menu.RadioGroup> ancestor (throws "MenuGroupContext is
+  // missing" otherwise), but this is used as a standalone informational
+  // label (e.g. showing the signed-in user's name), not a group heading.
   return (
-    <MenuPrimitive.GroupLabel
+    <div
       data-slot="dropdown-menu-label"
       data-inset={inset}
       className={cn(
