@@ -45,9 +45,8 @@ export default function PrivacyPage() {
           <h2>3. Third-Party Services</h2>
           <p>We work with the following trusted service providers, who process data on our behalf:</p>
           <ul>
-            <li><strong>Supabase</strong> — account authentication and database hosting.</li>
+            <li><strong>Supabase</strong> — account authentication, database, and image hosting.</li>
             <li><strong>Razorpay</strong> — payment processing.</li>
-            <li><strong>Cloudinary</strong> — product image hosting.</li>
             <li><strong>Resend</strong> — transactional emails (order updates, account emails).</li>
           </ul>
           <p>We do not sell your personal information to third parties.</p>

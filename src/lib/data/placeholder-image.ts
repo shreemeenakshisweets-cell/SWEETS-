@@ -1,7 +1,8 @@
 /**
  * Deterministic branded placeholder imagery for Phase 1 demo content.
- * Swap product/category images for real Cloudinary photography before
- * launch — see README "Replacing placeholder content".
+ * Swap product/category images for real photography (upload via the admin
+ * panel's image dropzone) before launch — see README "Replacing
+ * placeholder content".
  */
 export function placeholderImage(
   label: string,

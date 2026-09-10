@@ -12,7 +12,7 @@ type PendingUpload = { key: string; previewUrl: string };
 
 /**
  * Drag-and-drop (or click-to-browse) image uploader for product photos.
- * Each dropped/selected file uploads to Cloudinary immediately via
+ * Each dropped/selected file uploads to Supabase Storage immediately via
  * uploadProductImageAction; the resulting URLs are the controlled `value`.
  */
 export function ImageDropzone({

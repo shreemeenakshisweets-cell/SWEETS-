@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { productInputSchema } from "@/lib/validation/admin";
-import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { uploadProductImage } from "@/lib/supabase/storage";
 
 type ActionResult = { id?: string; error?: string };
 
@@ -22,11 +22,11 @@ export async function uploadProductImageAction(
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const url = await uploadImageToCloudinary(buffer, "products");
+    const url = await uploadProductImage(buffer, file.name, file.type);
     return { url };
   } catch (error) {
-    console.error("Cloudinary upload failed:", error);
-    return { error: "Upload failed — check Cloudinary is configured correctly." };
+    console.error("Product image upload failed:", error);
+    return { error: "Upload failed — please try again." };
   }
 }
 
