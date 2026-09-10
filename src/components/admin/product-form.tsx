@@ -22,6 +22,7 @@ import { productInputSchema, type ProductInput } from "@/lib/validation/admin";
 import type { Category, Product } from "@/generated/prisma/client";
 import type { ProductTag } from "@/types/catalog";
 import { getActionErrorMessage } from "@/lib/utils/errors";
+import { ImageDropzone } from "@/components/admin/image-dropzone";
 
 const ALL_TAGS: ProductTag[] = ["bestseller", "new", "spicy", "sugar-free", "festive", "limited"];
 
@@ -128,17 +129,10 @@ export function ProductForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="images">Image URLs (one per line)</Label>
-        <Textarea
-          id="images"
-          rows={3}
-          defaultValue={product?.images.join("\n")}
-          onChange={(e) =>
-            setValue(
-              "images",
-              e.target.value.split("\n").map((s) => s.trim()).filter(Boolean)
-            )
-          }
+        <Label>Product images</Label>
+        <ImageDropzone
+          value={watch("images") ?? []}
+          onChange={(urls) => setValue("images", urls, { shouldValidate: true })}
         />
         {errors.images && (
           <p className="text-xs text-destructive">

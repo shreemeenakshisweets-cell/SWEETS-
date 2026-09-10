@@ -4,8 +4,31 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { productInputSchema } from "@/lib/validation/admin";
+import { uploadImageToCloudinary } from "@/lib/cloudinary";
 
 type ActionResult = { id?: string; error?: string };
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+export async function uploadProductImageAction(
+  formData: FormData
+): Promise<{ url?: string; error?: string }> {
+  await requireAdmin();
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) return { error: "No file provided" };
+  if (!file.type.startsWith("image/")) return { error: "Only image files are allowed" };
+  if (file.size > MAX_IMAGE_BYTES) return { error: "Image must be under 5MB" };
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const url = await uploadImageToCloudinary(buffer, "products");
+    return { url };
+  } catch (error) {
+    console.error("Cloudinary upload failed:", error);
+    return { error: "Upload failed — check Cloudinary is configured correctly." };
+  }
+}
 
 export async function saveProductAction(input: unknown): Promise<ActionResult> {
   await requireAdmin();
