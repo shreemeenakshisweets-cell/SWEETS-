@@ -54,16 +54,6 @@ export async function signUpAction(input: unknown): Promise<ActionResult> {
   return { success: true };
 }
 
-export async function signInWithGoogleAction(): Promise<{ url?: string; error?: string }> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: `${siteUrl}/auth/callback` },
-  });
-  if (error) return { error: error.message };
-  return { url: data.url };
-}
-
 /** Sends a one-time passcode to the given email (Supabase email OTP). */
 export async function requestOtpAction(input: unknown): Promise<ActionResult> {
   const parsed = emailOnlySchema.safeParse(input);

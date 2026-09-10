@@ -9,8 +9,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { GoogleButton } from "@/components/auth/google-button";
 import { signInAction } from "@/app/(auth)/actions";
 import { signInSchema, type SignInInput } from "@/lib/validation/auth";
 import { getActionErrorMessage } from "@/lib/utils/errors";
@@ -46,14 +44,6 @@ export function LoginForm() {
       <div>
         <h1 className="font-heading text-2xl font-semibold text-foreground">Welcome back</h1>
         <p className="mt-1 text-sm text-muted-foreground">Sign in to your account</p>
-      </div>
-
-      <GoogleButton />
-
-      <div className="flex items-center gap-3">
-        <Separator className="flex-1" />
-        <span className="text-xs text-muted-foreground">OR</span>
-        <Separator className="flex-1" />
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
