@@ -6,17 +6,25 @@ export function Logo({ className }: { className?: string }) {
   return (
     <Link
       href="/"
-      className={cn("flex shrink-0 select-none items-center", className)}
+      className={cn("group flex shrink-0 select-none items-center gap-2.5", className)}
       aria-label="Shree Meenakshi Sweets & Savouries — home"
     >
       <Image
         src="/brand/logo.png"
-        alt="Shree Meenakshi Sweets & Savouries"
+        alt=""
         width={1536}
         height={1024}
         priority
-        className="h-11 w-auto sm:h-12"
+        className="h-11 w-auto transition-transform group-hover:scale-105 sm:h-12"
       />
+      <span className="flex flex-col leading-tight">
+        <span className="font-heading text-[0.65rem] font-medium uppercase tracking-[0.28em] text-muted-foreground">
+          Shree
+        </span>
+        <span className="font-heading text-base font-semibold tracking-tight text-foreground sm:text-lg">
+          Meenakshi
+        </span>
+      </span>
     </Link>
   );
 }
