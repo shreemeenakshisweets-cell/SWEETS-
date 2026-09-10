@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { MenuBrowser } from "@/components/menu/menu-browser";
-import { categories, products } from "@/lib/data/catalog";
+import { getActiveProducts, getCategories } from "@/lib/data/storefront";
 
 export const metadata: Metadata = {
   title: "Menu",
@@ -23,10 +23,15 @@ function MenuSkeleton() {
   );
 }
 
+async function MenuData() {
+  const [categories, products] = await Promise.all([getCategories(), getActiveProducts()]);
+  return <MenuBrowser categories={categories} products={products} />;
+}
+
 export default function MenuPage() {
   return (
     <Suspense fallback={<MenuSkeleton />}>
-      <MenuBrowser categories={categories} products={products} />
+      <MenuData />
     </Suspense>
   );
 }
