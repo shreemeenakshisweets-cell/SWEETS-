@@ -3,7 +3,6 @@
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 
 export function AdminTopbar() {
@@ -19,7 +18,6 @@ export function AdminTopbar() {
         </SheetContent>
       </Sheet>
       <h1 className="flex-1 font-heading text-lg font-semibold text-foreground">Admin</h1>
-      <ThemeToggle />
     </header>
   );
 }

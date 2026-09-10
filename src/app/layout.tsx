@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
@@ -61,10 +60,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fdfbf5" },
-    { media: "(prefers-color-scheme: dark)", color: "#17130d" },
-  ],
+  themeColor: "#fdfbf5",
   width: "device-width",
   initialScale: 1,
 };
@@ -77,17 +73,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fontHeading.variable} ${fontSans.variable} ${fontMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TooltipProvider delay={150}>
-            {children}
-            <Toaster richColors closeButton position="top-center" />
-          </TooltipProvider>
-        </ThemeProvider>
+        <TooltipProvider delay={150}>
+          {children}
+          <Toaster richColors closeButton position="top-center" />
+        </TooltipProvider>
       </body>
     </html>
   );

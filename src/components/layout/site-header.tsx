@@ -18,7 +18,6 @@ import {
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { navLinks } from "@/components/layout/nav-links";
 import { CartSheet } from "@/components/cart/cart-sheet";
 import { signOutAction } from "@/app/(auth)/actions";
@@ -92,7 +91,6 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
         </form>
 
         <div className="ml-auto flex items-center gap-1 md:ml-2">
-          <ThemeToggle />
           <CartSheet />
 
           {user ? (
