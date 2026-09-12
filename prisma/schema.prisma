@@ -257,6 +257,22 @@ model CouponRedemption {
   @@map("coupon_redemptions")
 }
 
+model Banner {
+  id        String   @id @default(uuid()) @db.Uuid
+  eyebrow   String?
+  heading   String
+  body      String
+  ctaLabel  String
+  ctaHref   String
+  theme     String   @default("gold")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("banners")
+}
+
 // ---------------------------------------------------------------------------
 // Orders
 // ---------------------------------------------------------------------------

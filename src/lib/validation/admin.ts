@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BANNER_THEME_KEYS } from "@/lib/data/banner-themes";
 
 export const categoryInputSchema = z.object({
   id: z.string().uuid().optional(),
@@ -68,6 +69,19 @@ export const couponInputSchema = z.object({
   expiresAt: z.string().optional().nullable(),
 });
 export type CouponInput = z.input<typeof couponInputSchema>;
+
+export const bannerInputSchema = z.object({
+  id: z.string().uuid().optional(),
+  eyebrow: z.string().trim().max(80).optional().or(z.literal("")),
+  heading: z.string().trim().min(2, "Enter a heading"),
+  body: z.string().trim().min(10, "Enter body text"),
+  ctaLabel: z.string().trim().min(2, "Enter a button label"),
+  ctaHref: z.string().trim().min(1, "Enter a link, e.g. /menu"),
+  theme: z.enum(BANNER_THEME_KEYS as [string, ...string[]]),
+  sortOrder: z.coerce.number().int(),
+  isActive: z.boolean(),
+});
+export type BannerInput = z.input<typeof bannerInputSchema>;
 
 export const orderStatusUpdateSchema = z.object({
   orderId: z.string().uuid(),

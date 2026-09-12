@@ -109,6 +109,14 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   return category ? mapCategory(category) : null;
 }
 
+/** Active homepage banners, in admin-configured display order. */
+export async function getActiveBanners() {
+  return prisma.banner.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+  });
+}
+
 /** All active product slugs, for generateStaticParams. */
 export async function getAllProductSlugs(): Promise<string[]> {
   const products = await prisma.product.findMany({
