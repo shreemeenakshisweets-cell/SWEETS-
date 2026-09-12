@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { LayoutDashboard, LogOut, Menu, Search, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,22 @@ import { signOutAction } from "@/app/(auth)/actions";
 import { cn } from "@/lib/utils";
 import type { User as AppUser } from "@/generated/prisma/client";
 
+/**
+ * A nav link is active only when both its path AND its query params
+ * (specifically `category`) match the current URL — comparing pathname
+ * alone would make "Menu" (/menu) and "Gift Boxes" (/menu?category=
+ * gift-boxes) both light up together any time you're anywhere under /menu.
+ */
+function isLinkActive(href: string, pathname: string, searchParams: URLSearchParams) {
+  const [linkPath, linkQuery] = href.split("?");
+  if (pathname !== linkPath) return false;
+  const linkCategory = linkQuery ? new URLSearchParams(linkQuery).get("category") : null;
+  return linkCategory === searchParams.get("category");
+}
+
 export function SiteHeader({ user }: { user: AppUser | null }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = React.useState(false);
@@ -57,7 +71,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
 
         <nav className="ml-4 hidden items-center gap-1 lg:flex">
           {navLinks.map((link) => {
-            const active = pathname === link.href.split("?")[0];
+            const active = isLinkActive(link.href, pathname, searchParams);
             return (
               <Link
                 key={link.href}
