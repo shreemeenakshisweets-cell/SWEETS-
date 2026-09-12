@@ -1,8 +1,9 @@
 "use client";
 
+import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Eye, EyeOff, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,11 +19,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CategoryFormDialog } from "@/components/admin/category-form-dialog";
-import { deleteCategoryAction } from "@/app/admin/categories/actions";
+import {
+  deleteCategoryAction,
+  toggleCategoryActiveAction,
+} from "@/app/admin/categories/actions";
 import type { Category } from "@/generated/prisma/client";
 
 export function CategoriesManager({ categories }: { categories: Category[] }) {
   const router = useRouter();
+  const [pendingId, setPendingId] = React.useState<string | null>(null);
 
   async function handleDelete(id: string) {
     const result = await deleteCategoryAction(id);
@@ -32,6 +37,13 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
     }
     toast.success("Category deleted");
     router.refresh();
+  }
+
+  async function handleToggle(category: Category) {
+    setPendingId(category.id);
+    await toggleCategoryActiveAction(category.id, !category.isActive);
+    router.refresh();
+    setPendingId(null);
   }
 
   return (
@@ -76,6 +88,19 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleToggle(category)}
+                      disabled={pendingId === category.id}
+                      title={category.isActive ? "Hide from storefront" : "Show on storefront"}
+                    >
+                      {category.isActive ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </Button>
                     <CategoryFormDialog category={category} onSaved={() => router.refresh()} />
                     <AlertDialog>
                       <AlertDialogTrigger

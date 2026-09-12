@@ -38,3 +38,15 @@ export async function deleteCategoryAction(id: string): Promise<ActionResult> {
   revalidatePath("/admin/categories");
   return {};
 }
+
+export async function toggleCategoryActiveAction(
+  id: string,
+  isActive: boolean
+): Promise<ActionResult> {
+  await requireAdmin();
+  await prisma.category.update({ where: { id }, data: { isActive } });
+  revalidatePath("/admin/categories");
+  revalidatePath("/menu");
+  revalidatePath("/", "layout");
+  return {};
+}

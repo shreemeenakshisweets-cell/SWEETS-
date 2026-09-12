@@ -66,7 +66,7 @@ export async function getCategories(): Promise<Category[]> {
 /** Active products with at least one variant, newest first. */
 export async function getActiveProducts(): Promise<Product[]> {
   const products = await prisma.product.findMany({
-    where: { isActive: true, variants: { some: {} } },
+    where: { isActive: true, variants: { some: {} }, category: { isActive: true } },
     include: productInclude,
     orderBy: { createdAt: "desc" },
   });
@@ -75,7 +75,12 @@ export async function getActiveProducts(): Promise<Product[]> {
 
 export async function getFeaturedProducts(): Promise<Product[]> {
   const products = await prisma.product.findMany({
-    where: { isActive: true, isFeatured: true, variants: { some: {} } },
+    where: {
+      isActive: true,
+      isFeatured: true,
+      variants: { some: {} },
+      category: { isActive: true },
+    },
     include: productInclude,
     orderBy: { createdAt: "desc" },
   });
@@ -84,7 +89,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const product = await prisma.product.findFirst({
-    where: { slug, isActive: true },
+    where: { slug, isActive: true, category: { isActive: true } },
     include: productInclude,
   });
   return product ? mapProduct(product) : null;
