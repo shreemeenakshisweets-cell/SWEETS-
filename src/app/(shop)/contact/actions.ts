@@ -3,6 +3,7 @@
 import { getResend } from "@/lib/resend";
 import { BUSINESS } from "@/lib/business";
 import { contactMessageSchema } from "@/lib/validation/contact";
+import { escapeHtml } from "@/lib/utils/html";
 
 type ActionResult = { error?: string; success?: true };
 
@@ -30,11 +31,11 @@ export async function sendContactMessageAction(input: unknown): Promise<ActionRe
       replyTo: email,
       subject: `New contact form message from ${name}`,
       html: `
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        ${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ""}
+        <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+        ${phone ? `<p><strong>Phone:</strong> ${escapeHtml(phone)}</p>` : ""}
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br/>")}</p>
+        <p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>
       `,
     });
     return { success: true };

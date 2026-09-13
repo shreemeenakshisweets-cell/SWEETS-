@@ -4,6 +4,7 @@ import { getResend } from "@/lib/resend";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
 import { BUSINESS } from "@/lib/business";
 import { formatCurrency } from "@/lib/utils/currency";
+import { escapeHtml } from "@/lib/utils/html";
 import type { NotificationType, OrderStatus } from "@/generated/prisma/client";
 
 const BRAND = {
@@ -98,7 +99,7 @@ export async function sendOrderStatusEmail(orderId: string, status: OrderStatus)
     const itemsHtml = order.items
       .map(
         (item) => `<tr>
-          <td style="padding:4px 0;color:${BRAND.text};">${item.productName} (${item.variantLabel}) × ${item.quantity}</td>
+          <td style="padding:4px 0;color:${BRAND.text};">${escapeHtml(item.productName)} (${escapeHtml(item.variantLabel)}) × ${item.quantity}</td>
           <td style="padding:4px 0;text-align:right;color:${BRAND.muted};">${formatCurrency(Number(item.total))}</td>
         </tr>`
       )
@@ -157,7 +158,7 @@ export async function notifyBusinessOfNewOrder(orderId: string) {
     const itemsHtml = order.items
       .map(
         (item) => `<tr>
-          <td style="padding:4px 0;color:${BRAND.text};">${item.productName} (${item.variantLabel}) × ${item.quantity}</td>
+          <td style="padding:4px 0;color:${BRAND.text};">${escapeHtml(item.productName)} (${escapeHtml(item.variantLabel)}) × ${item.quantity}</td>
           <td style="padding:4px 0;text-align:right;color:${BRAND.muted};">${formatCurrency(Number(item.total))}</td>
         </tr>`
       )
@@ -171,10 +172,10 @@ export async function notifyBusinessOfNewOrder(orderId: string) {
     </div>
     <div style="padding:28px 24px;">
       <h1 style="margin:0 0 12px;font-size:20px;">Order ${order.orderNumber}</h1>
-      <p style="margin:0 0 4px;font-size:14px;"><strong>${order.shippingAddress.fullName}</strong> · ${order.shippingAddress.phone}</p>
+      <p style="margin:0 0 4px;font-size:14px;"><strong>${escapeHtml(order.shippingAddress.fullName)}</strong> · ${escapeHtml(order.shippingAddress.phone)}</p>
       <p style="margin:0 0 16px;font-size:13px;color:${BRAND.muted};">
-        ${order.shippingAddress.line1}${order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ""},
-        ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}
+        ${escapeHtml(order.shippingAddress.line1)}${order.shippingAddress.line2 ? `, ${escapeHtml(order.shippingAddress.line2)}` : ""},
+        ${escapeHtml(order.shippingAddress.city)}, ${escapeHtml(order.shippingAddress.state)} ${escapeHtml(order.shippingAddress.postalCode)}
       </p>
       <table style="width:100%;border-collapse:collapse;font-size:14px;">
         ${itemsHtml}
