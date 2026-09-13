@@ -20,7 +20,7 @@ const trustPoints = [
 // keeps the homepage from shipping an empty hero on a fresh install.
 const FALLBACK_SLIDE: Pick<
   Banner,
-  "id" | "eyebrow" | "heading" | "body" | "ctaLabel" | "ctaHref" | "theme" | "imageUrl"
+  "id" | "eyebrow" | "heading" | "body" | "ctaLabel" | "ctaHref" | "theme" | "imageUrl" | "imageFit"
 > = {
   id: "fallback",
   eyebrow: "Taste you'll love, hygiene you can trust",
@@ -30,6 +30,7 @@ const FALLBACK_SLIDE: Pick<
   ctaHref: "/menu",
   theme: "gold",
   imageUrl: null,
+  imageFit: "cover",
 };
 
 const AUTO_ADVANCE_MS = 4000;
@@ -78,7 +79,11 @@ export function Hero({ banners }: { banners: Banner[] }) {
                   fill
                   priority={index === 0}
                   sizes="100vw"
-                  className="object-cover opacity-90"
+                  quality={90}
+                  className={cn(
+                    "opacity-90",
+                    slide.imageFit === "contain" ? "object-contain" : "object-cover"
+                  )}
                 />
                 {/* A soft, semi-transparent theme-colour wash multiplied over
                     the photo — tints it into the brand palette without

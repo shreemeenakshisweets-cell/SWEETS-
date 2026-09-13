@@ -8,7 +8,11 @@ import { uploadImage } from "@/lib/supabase/storage";
 
 type ActionResult = { id?: string; error?: string };
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+// Higher than the product-photo cap: hero banners are large, prominent
+// full-width graphics, so a genuinely high-resolution source photo is
+// worth allowing — it's still compressed for delivery by Next.js's image
+// optimizer either way.
+const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 
 export async function uploadBannerImageAction(
   formData: FormData
@@ -18,7 +22,7 @@ export async function uploadBannerImageAction(
   const file = formData.get("file");
   if (!(file instanceof File)) return { error: "No file provided" };
   if (!file.type.startsWith("image/")) return { error: "Only image files are allowed" };
-  if (file.size > MAX_IMAGE_BYTES) return { error: "Image must be under 5MB" };
+  if (file.size > MAX_IMAGE_BYTES) return { error: "Image must be under 15MB" };
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());

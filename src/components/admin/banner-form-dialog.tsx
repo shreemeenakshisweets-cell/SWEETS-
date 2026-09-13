@@ -58,6 +58,7 @@ export function BannerFormDialog({
           ctaHref: banner.ctaHref,
           theme: banner.theme,
           imageUrl: banner.imageUrl ?? "",
+          imageFit: banner.imageFit as "cover" | "contain",
           sortOrder: banner.sortOrder,
           isActive: banner.isActive,
         }
@@ -69,6 +70,7 @@ export function BannerFormDialog({
           ctaHref: "/menu",
           theme: "gold",
           imageUrl: "",
+          imageFit: "cover",
           sortOrder: 0,
           isActive: true,
         },
@@ -154,10 +156,32 @@ export function BannerFormDialog({
               value={watch("imageUrl") ? [watch("imageUrl") as string] : []}
               onChange={(urls) => setValue("imageUrl", urls[urls.length - 1] ?? "")}
               uploadAction={uploadBannerImageAction}
+              maxSizeLabel="15MB"
             />
             <p className="text-xs text-muted-foreground">
               If set, this photo shows behind the text instead of the flat colour theme below
-              (the colour theme still tints the overlay).
+              (the colour theme still tints the overlay). Upload the highest-resolution photo
+              you have — it&apos;s compressed automatically for web delivery, but starting from a
+              sharp original avoids any blur or pixelation.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="imageFit">Photo display</Label>
+            <Select
+              defaultValue={banner?.imageFit ?? "cover"}
+              onValueChange={(v) => v && setValue("imageFit", v as "cover" | "contain")}
+            >
+              <SelectTrigger id="imageFit">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cover">Fill frame (crops to fit, no empty space)</SelectItem>
+                <SelectItem value="contain">Show full photo (zoomed out, nothing cropped)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              &ldquo;Show full photo&rdquo; keeps the entire image visible — any empty space
+              on the sides fills with the colour theme below, so nothing gets cut off.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">

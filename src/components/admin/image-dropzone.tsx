@@ -20,10 +20,14 @@ export function ImageDropzone({
   value,
   onChange,
   uploadAction = uploadProductImageAction,
+  maxSizeLabel = "5MB",
 }: {
   value: string[];
   onChange: (urls: string[]) => void;
   uploadAction?: UploadAction;
+  /** Shown in the dropzone hint text — purely informational, the actual
+   * limit is enforced server-side by whichever `uploadAction` is passed. */
+  maxSizeLabel?: string;
 }) {
   const [isDraggingOver, setIsDraggingOver] = React.useState(false);
   const [pending, setPending] = React.useState<PendingUpload[]>([]);
@@ -100,7 +104,9 @@ export function ImageDropzone({
         <p className="text-sm text-muted-foreground">
           Drag &amp; drop images here, or click to browse
         </p>
-        <p className="text-xs text-muted-foreground/70">JPG, PNG, or WebP — up to 5MB each</p>
+        <p className="text-xs text-muted-foreground/70">
+          JPG, PNG, or WebP — up to {maxSizeLabel} each
+        </p>
         <input
           ref={inputRef}
           type="file"

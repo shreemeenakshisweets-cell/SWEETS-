@@ -266,6 +266,7 @@ model Banner {
   ctaHref   String
   theme     String   @default("gold")
   imageUrl  String?
+  imageFit  String   @default("cover")
   sortOrder Int      @default(0)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())

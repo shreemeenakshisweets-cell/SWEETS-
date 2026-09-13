@@ -79,6 +79,7 @@ export const bannerInputSchema = z.object({
   ctaHref: z.string().trim().min(1, "Enter a link, e.g. /menu"),
   theme: z.enum(BANNER_THEME_KEYS as [string, ...string[]]),
   imageUrl: z.string().trim().url().optional().or(z.literal("")),
+  imageFit: z.enum(["cover", "contain"]),
   sortOrder: z.coerce.number().int(),
   isActive: z.boolean(),
 });
