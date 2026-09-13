@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { placeholderImage } from "@/lib/data/placeholder-image";
-import type { Category, Product, ProductTag } from "@/types/catalog";
+import type { Category, Product, ProductTag, Testimonial } from "@/types/catalog";
 
 const productInclude = {
   category: true,
@@ -124,4 +124,31 @@ export async function getAllProductSlugs(): Promise<string[]> {
     select: { slug: true },
   });
   return products.map((p) => p.slug);
+}
+
+/**
+ * Real, approved customer reviews for the homepage testimonials section —
+ * never fabricated placeholder quotes. Requires written feedback (not just
+ * a star rating) and returns an empty array until there's enough of it;
+ * the homepage hides the whole section rather than show fewer than 3.
+ */
+export async function getFeaturedTestimonials(): Promise<Testimonial[]> {
+  const reviews = await prisma.review.findMany({
+    where: { isApproved: true, rating: { gte: 4 }, comment: { not: null } },
+    include: { user: true, order: { include: { shippingAddress: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+  });
+
+  return reviews.map((r) => {
+    const name = r.user.fullName ?? "Verified Customer";
+    return {
+      id: r.id,
+      name,
+      location: r.order?.shippingAddress.city ?? "",
+      rating: r.rating,
+      quote: r.comment!,
+      avatarUrl: r.user.avatarUrl ?? placeholderImage(name.slice(0, 2).toUpperCase(), { size: 128 }),
+    };
+  });
 }
