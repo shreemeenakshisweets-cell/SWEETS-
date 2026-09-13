@@ -9,18 +9,21 @@ import { getActionErrorMessage } from "@/lib/utils/errors";
 import { cn } from "@/lib/utils";
 
 type PendingUpload = { key: string; previewUrl: string };
+type UploadAction = (formData: FormData) => Promise<{ url?: string; error?: string }>;
 
 /**
- * Drag-and-drop (or click-to-browse) image uploader for product photos.
- * Each dropped/selected file uploads to Supabase Storage immediately via
- * uploadProductImageAction; the resulting URLs are the controlled `value`.
+ * Drag-and-drop (or click-to-browse) image uploader. Each dropped/selected
+ * file uploads to Supabase Storage immediately via `uploadAction` (defaults
+ * to product images); the resulting URLs are the controlled `value`.
  */
 export function ImageDropzone({
   value,
   onChange,
+  uploadAction = uploadProductImageAction,
 }: {
   value: string[];
   onChange: (urls: string[]) => void;
+  uploadAction?: UploadAction;
 }) {
   const [isDraggingOver, setIsDraggingOver] = React.useState(false);
   const [pending, setPending] = React.useState<PendingUpload[]>([]);
@@ -45,7 +48,7 @@ export function ImageDropzone({
         try {
           const formData = new FormData();
           formData.append("file", file);
-          const result = await uploadProductImageAction(formData);
+          const result = await uploadAction(formData);
           if (result.error || !result.url) {
             toast.error(result.error ?? "Upload failed");
           } else {

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { productInputSchema } from "@/lib/validation/admin";
-import { uploadProductImage } from "@/lib/supabase/storage";
+import { uploadImage } from "@/lib/supabase/storage";
 
 type ActionResult = { id?: string; error?: string };
 
@@ -22,7 +22,7 @@ export async function uploadProductImageAction(
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const url = await uploadProductImage(buffer, file.name, file.type);
+    const url = await uploadImage(buffer, file.name, file.type, "products");
     return { url };
   } catch (error) {
     console.error("Product image upload failed:", error);

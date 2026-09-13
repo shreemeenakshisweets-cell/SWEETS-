@@ -24,9 +24,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { saveBannerAction } from "@/app/admin/banners/actions";
+import { saveBannerAction, uploadBannerImageAction } from "@/app/admin/banners/actions";
 import { bannerInputSchema, type BannerInput } from "@/lib/validation/admin";
 import { BANNER_THEMES, BANNER_THEME_KEYS } from "@/lib/data/banner-themes";
+import { ImageDropzone } from "@/components/admin/image-dropzone";
 import type { Banner } from "@/generated/prisma/client";
 import { getActionErrorMessage } from "@/lib/utils/errors";
 
@@ -56,6 +57,7 @@ export function BannerFormDialog({
           ctaLabel: banner.ctaLabel,
           ctaHref: banner.ctaHref,
           theme: banner.theme,
+          imageUrl: banner.imageUrl ?? "",
           sortOrder: banner.sortOrder,
           isActive: banner.isActive,
         }
@@ -66,6 +68,7 @@ export function BannerFormDialog({
           ctaLabel: "Shop Now",
           ctaHref: "/menu",
           theme: "gold",
+          imageUrl: "",
           sortOrder: 0,
           isActive: true,
         },
@@ -144,6 +147,18 @@ export function BannerFormDialog({
                 <p className="text-xs text-destructive">{errors.ctaHref.message}</p>
               )}
             </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Background photo (optional)</Label>
+            <ImageDropzone
+              value={watch("imageUrl") ? [watch("imageUrl") as string] : []}
+              onChange={(urls) => setValue("imageUrl", urls[urls.length - 1] ?? "")}
+              uploadAction={uploadBannerImageAction}
+            />
+            <p className="text-xs text-muted-foreground">
+              If set, this photo shows behind the text instead of the flat colour theme below
+              (the colour theme still tints the overlay).
+            </p>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="theme">Colour theme</Label>

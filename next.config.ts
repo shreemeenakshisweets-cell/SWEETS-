@@ -1,18 +1,18 @@
 import type { NextConfig } from "next";
 
-const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
-  : undefined;
-
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // Phase 1 placeholder catalog imagery — real product photos live in
-      // Supabase Storage (uploaded via the admin panel's image dropzone).
+      // Phase 1 placeholder catalog imagery.
       { protocol: "https", hostname: "placehold.co" },
-      ...(supabaseHostname
-        ? [{ protocol: "https" as const, hostname: supabaseHostname }]
-        : []),
+      // Supabase Storage (product photos, banner photos — uploaded via the
+      // admin panel). Hardcoded rather than derived from
+      // NEXT_PUBLIC_SUPABASE_URL at config-eval time: that env var isn't
+      // reliably populated yet when Turbopack loads next.config.ts, which
+      // silently produced an empty remotePatterns entry and made every
+      // Supabase-hosted image 400 ("url parameter is not allowed") the
+      // moment the image-optimizer cache was cold.
+      { protocol: "https", hostname: "mhyeittyesfrzgdixtit.supabase.co" },
     ],
   },
 };

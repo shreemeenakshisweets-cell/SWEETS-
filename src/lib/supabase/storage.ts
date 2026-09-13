@@ -10,14 +10,18 @@ const PRODUCT_IMAGES_BUCKET = "product-images";
  * the service-role client since admin-only callers already gate access via
  * requireAdmin() — mirrors how the rest of the admin panel bypasses RLS
  * through Prisma's direct Postgres connection.
+ *
+ * `folder` namespaces the path within the same bucket (e.g. "products",
+ * "banners") — no need for a separate bucket per image type.
  */
-export async function uploadProductImage(
+export async function uploadImage(
   buffer: Buffer,
   originalName: string,
-  contentType: string
+  contentType: string,
+  folder: string = "products"
 ): Promise<string> {
   const ext = originalName.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${randomUUID()}.${ext}`;
+  const path = `${folder}/${randomUUID()}.${ext}`;
 
   const supabase = createAdminClient();
   const { error } = await supabase.storage

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronLeft, ChevronRight, Leaf, ShieldCheck, Truck } from "lucide-react";
@@ -19,7 +20,7 @@ const trustPoints = [
 // keeps the homepage from shipping an empty hero on a fresh install.
 const FALLBACK_SLIDE: Pick<
   Banner,
-  "id" | "eyebrow" | "heading" | "body" | "ctaLabel" | "ctaHref" | "theme"
+  "id" | "eyebrow" | "heading" | "body" | "ctaLabel" | "ctaHref" | "theme" | "imageUrl"
 > = {
   id: "fallback",
   eyebrow: "Taste you'll love, hygiene you can trust",
@@ -28,6 +29,7 @@ const FALLBACK_SLIDE: Pick<
   ctaLabel: "Order Now",
   ctaHref: "/menu",
   theme: "gold",
+  imageUrl: null,
 };
 
 const AUTO_ADVANCE_MS = 4000;
@@ -68,7 +70,27 @@ export function Hero({ banners }: { banners: Banner[] }) {
             className="absolute inset-0"
             style={bannerGradientStyle(slide.theme)}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+            {slide.imageUrl && (
+              <>
+                <Image
+                  src={slide.imageUrl}
+                  alt=""
+                  fill
+                  priority={index === 0}
+                  sizes="100vw"
+                  className="object-cover opacity-90"
+                />
+                {/* A soft, semi-transparent theme-colour wash multiplied over
+                    the photo — tints it into the brand palette without
+                    crushing it to near-black the way multiplying the full-
+                    opacity image itself would. */}
+                <div
+                  className="absolute inset-0 opacity-50 mix-blend-multiply"
+                  style={bannerGradientStyle(slide.theme)}
+                />
+              </>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-black/15 to-transparent" />
 
             <div className="relative mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-8">
               <motion.div
