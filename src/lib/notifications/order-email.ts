@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { getResend } from "@/lib/resend";
+import { sendWhatsAppMessage } from "@/lib/whatsapp";
 import { BUSINESS } from "@/lib/business";
 import { formatCurrency } from "@/lib/utils/currency";
 import type { NotificationType, OrderStatus } from "@/generated/prisma/client";
@@ -89,7 +90,7 @@ export async function sendOrderStatusEmail(orderId: string, status: OrderStatus)
   try {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { user: true, items: true },
+      include: { user: true, items: true, shippingAddress: true },
     });
     if (!order) return;
 
@@ -111,6 +112,16 @@ export async function sendOrderStatusEmail(orderId: string, status: OrderStatus)
         subject: content.subject,
         html,
       });
+    }
+
+    if (status === "CONFIRMED") {
+      const itemsText = order.items
+        .map((item) => `• ${item.productName} (${item.variantLabel}) × ${item.quantity}`)
+        .join("\n");
+      await sendWhatsAppMessage(
+        order.shippingAddress.phone,
+        `Hi ${order.shippingAddress.fullName}! 🎉 Your order *${order.orderNumber}* is confirmed.\n\n${itemsText}\n\nTotal: *${formatCurrency(Number(order.total))}*\n\nTrack it here: ${siteUrl}/orders/${order.orderNumber}/track\n\nThank you for shopping with ${BUSINESS.tradeName}!`
+      );
     }
 
     await prisma.notification.create({
@@ -183,6 +194,14 @@ export async function notifyBusinessOfNewOrder(orderId: string) {
       subject: `New order — ${order.orderNumber} (${formatCurrency(Number(order.total))})`,
       html,
     });
+
+    const itemsText = order.items
+      .map((item) => `• ${item.productName} (${item.variantLabel}) × ${item.quantity}`)
+      .join("\n");
+    await sendWhatsAppMessage(
+      BUSINESS.whatsapp,
+      `🔔 New order *${order.orderNumber}*\n\n${order.shippingAddress.fullName} · ${order.shippingAddress.phone}\n${order.shippingAddress.line1}${order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ""}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}\n\n${itemsText}\n\nTotal: *${formatCurrency(Number(order.total))}*\n\nView: ${siteUrl}/admin/orders/${order.id}`
+    );
   } catch (error) {
     console.error(`Failed to notify business of new order ${orderId}:`, error);
   }
