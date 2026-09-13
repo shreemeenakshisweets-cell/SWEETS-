@@ -101,6 +101,14 @@ export function CheckoutView({
           contact: data.customer.contact,
         },
         theme: { color: "#7a6118" },
+        // Hide EMI and Pay Later — irrelevant for typical sweets/savouries
+        // order values, just clutter. UPI, Cards, Netbanking, and Wallets
+        // stay visible.
+        config: {
+          display: {
+            hide: [{ method: "emi" }, { method: "paylater" }],
+          },
+        },
         handler: async (response) => {
           const verifyRes = await fetch("/api/checkout/verify", {
             method: "POST",

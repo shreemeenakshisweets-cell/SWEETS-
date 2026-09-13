@@ -13,6 +13,11 @@ export interface RazorpayCheckoutOptions {
     razorpay_signature: string;
   }) => void;
   modal?: { ondismiss?: () => void };
+  config?: {
+    display?: {
+      hide?: { method: "emi" | "paylater" | "wallet" | "netbanking" | "card" | "upi" }[];
+    };
+  };
 }
 
 interface RazorpayCheckoutInstance {
