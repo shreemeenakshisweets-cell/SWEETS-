@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
@@ -9,8 +10,14 @@ import type { User as AppUser } from "@/generated/prisma/client";
  * Returns the signed-in Supabase user joined with their app profile row,
  * provisioning the profile on first access (no DB trigger required).
  * Returns null when signed out.
+ *
+ * Wrapped in React's `cache()` so the layout + page (and any nested call)
+ * share one result per request instead of each re-running the Supabase
+ * auth network call and the Postgres upsert — this was happening 2-3x on
+ * every page (once in the layout, again in the page) and was a real
+ * contributor to slow page loads.
  */
-export async function getCurrentUser(): Promise<AppUser | null> {
+export const getCurrentUser = cache(async (): Promise<AppUser | null> => {
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -32,7 +39,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       phone: authUser.phone ?? null,
     },
   });
-}
+});
 
 /** Redirects to /login when signed out. Use in Server Components/Actions. */
 export async function requireUser(): Promise<AppUser> {
