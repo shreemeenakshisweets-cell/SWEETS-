@@ -141,11 +141,15 @@ export function Hero({ banners }: { banners: Banner[] }) {
 
         {slides.length > 1 && (
           <>
+            {/* Bottom-anchored (alongside the slide dots) rather than
+                vertically centered — centering collided with the slide's
+                body copy whenever it wrapped to multiple lines, especially
+                on narrow screens. */}
             <button
               type="button"
               onClick={() => goTo(index - 1)}
               aria-label="Previous slide"
-              className="absolute top-1/2 left-3 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors hover:bg-white/25 sm:left-6"
+              className="absolute bottom-5 left-3 flex size-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors hover:bg-white/25 sm:left-6"
             >
               <ChevronLeft className="size-5" />
             </button>
@@ -153,7 +157,7 @@ export function Hero({ banners }: { banners: Banner[] }) {
               type="button"
               onClick={() => goTo(index + 1)}
               aria-label="Next slide"
-              className="absolute top-1/2 right-3 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors hover:bg-white/25 sm:right-6"
+              className="absolute right-3 bottom-5 flex size-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors hover:bg-white/25 sm:right-6"
             >
               <ChevronRight className="size-5" />
             </button>
