@@ -12,4 +12,8 @@ export const BUSINESS = {
   whatsapp: "918008089975",
   email: "customercare@shreemeenakshisweets.com",
   hours: "Mon – Sun: 9:00 AM – 9:00 PM",
+  // Leave unset until real pages exist — the footer hides each icon rather
+  // than link out to "#".
+  facebook: undefined as string | undefined,
+  instagram: undefined as string | undefined,
 } as const;

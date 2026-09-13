@@ -75,22 +75,32 @@ export function SiteFooter() {
                 <Mail className="size-4 shrink-0" /> {BUSINESS.email}
               </a>
             </div>
-            <div className="mt-5 flex gap-3">
-              <a
-                href="#"
-                aria-label="Facebook"
-                className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground hover:border-primary hover:text-primary"
-              >
-                <FacebookGlyph className="size-4" />
-              </a>
-              <a
-                href="#"
-                aria-label="Instagram"
-                className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground hover:border-primary hover:text-primary"
-              >
-                <InstagramGlyph className="size-4" />
-              </a>
-            </div>
+            {(BUSINESS.facebook || BUSINESS.instagram) && (
+              <div className="mt-5 flex gap-3">
+                {BUSINESS.facebook && (
+                  <a
+                    href={BUSINESS.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground hover:border-primary hover:text-primary"
+                  >
+                    <FacebookGlyph className="size-4" />
+                  </a>
+                )}
+                {BUSINESS.instagram && (
+                  <a
+                    href={BUSINESS.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground hover:border-primary hover:text-primary"
+                  >
+                    <InstagramGlyph className="size-4" />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           {columns.map((col) => (
