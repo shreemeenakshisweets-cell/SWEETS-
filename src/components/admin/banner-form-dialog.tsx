@@ -26,7 +26,12 @@ import {
 } from "@/components/ui/dialog";
 import { saveBannerAction, uploadBannerImageAction } from "@/app/admin/banners/actions";
 import { bannerInputSchema, type BannerInput } from "@/lib/validation/admin";
-import { BANNER_THEMES, BANNER_THEME_KEYS } from "@/lib/data/banner-themes";
+import {
+  BANNER_POSITION_KEYS,
+  BANNER_POSITIONS,
+  BANNER_THEMES,
+  BANNER_THEME_KEYS,
+} from "@/lib/data/banner-themes";
 import { ImageDropzone } from "@/components/admin/image-dropzone";
 import type { Banner } from "@/generated/prisma/client";
 import { getActionErrorMessage } from "@/lib/utils/errors";
@@ -59,6 +64,7 @@ export function BannerFormDialog({
           theme: banner.theme,
           imageUrl: banner.imageUrl ?? "",
           imageFit: banner.imageFit as "cover" | "contain",
+          imagePosition: banner.imagePosition,
           sortOrder: banner.sortOrder,
           isActive: banner.isActive,
         }
@@ -71,6 +77,7 @@ export function BannerFormDialog({
           theme: "gold",
           imageUrl: "",
           imageFit: "cover",
+          imagePosition: "center",
           sortOrder: 0,
           isActive: true,
         },
@@ -182,6 +189,29 @@ export function BannerFormDialog({
             <p className="text-xs text-muted-foreground">
               &ldquo;Show full photo&rdquo; keeps the entire image visible — any empty space
               on the sides fills with the colour theme below, so nothing gets cut off.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="imagePosition">Photo position</Label>
+            <Select
+              defaultValue={banner?.imagePosition ?? "center"}
+              onValueChange={(v) => v && setValue("imagePosition", v)}
+            >
+              <SelectTrigger id="imagePosition">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {BANNER_POSITION_KEYS.map((key) => (
+                  <SelectItem key={key} value={key}>
+                    {BANNER_POSITIONS[key]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Only matters in &ldquo;Fill frame&rdquo; mode — controls which part of the photo
+              stays visible when it&apos;s cropped to fit different screen sizes (e.g. pick
+              &ldquo;Top&rdquo; to keep a temple&apos;s spire in frame instead of the base).
             </p>
           </div>
           <div className="flex flex-col gap-1.5">

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BANNER_THEME_KEYS } from "@/lib/data/banner-themes";
+import { BANNER_POSITION_KEYS, BANNER_THEME_KEYS } from "@/lib/data/banner-themes";
 
 export const categoryInputSchema = z.object({
   id: z.string().uuid().optional(),
@@ -80,6 +80,7 @@ export const bannerInputSchema = z.object({
   theme: z.enum(BANNER_THEME_KEYS as [string, ...string[]]),
   imageUrl: z.string().trim().url().optional().or(z.literal("")),
   imageFit: z.enum(["cover", "contain"]),
+  imagePosition: z.enum(BANNER_POSITION_KEYS as [string, ...string[]]),
   sortOrder: z.coerce.number().int(),
   isActive: z.boolean(),
 });

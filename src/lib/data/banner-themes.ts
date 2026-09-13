@@ -25,3 +25,24 @@ export function bannerGradientStyle(theme: string): { backgroundImage: string } 
   const preset = BANNER_THEMES[theme as BannerTheme] ?? BANNER_THEMES.gold;
   return { backgroundImage: `linear-gradient(120deg, ${preset.from} 0%, ${preset.to} 100%)` };
 }
+
+/**
+ * The 9-point manual crop position, standard CSS object-position keywords —
+ * lets an admin choose which part of a "Fill frame" (cover) photo stays
+ * visible when it's cropped to fill the banner on any given screen size.
+ */
+export const BANNER_POSITIONS = {
+  "top left": "Top left",
+  top: "Top",
+  "top right": "Top right",
+  left: "Left",
+  center: "Center (default)",
+  right: "Right",
+  "bottom left": "Bottom left",
+  bottom: "Bottom",
+  "bottom right": "Bottom right",
+} as const;
+
+export type BannerPosition = keyof typeof BANNER_POSITIONS;
+
+export const BANNER_POSITION_KEYS = Object.keys(BANNER_POSITIONS) as BannerPosition[];
