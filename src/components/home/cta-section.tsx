@@ -31,11 +31,11 @@ export function CtaSection() {
           <Button
             size="lg"
             variant="secondary"
-            render={<Link href="/menu?category=gift-boxes" />}
+            render={<Link href="/menu?category=seasonal-specials" />}
             nativeButton={false}
             className="mt-2 gap-2"
           >
-            Explore Gift Boxes <ArrowRight className="size-4" />
+            Explore Seasonal Specials <ArrowRight className="size-4" />
           </Button>
         </div>
       </motion.div>

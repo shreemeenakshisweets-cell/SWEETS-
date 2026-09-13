@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { OffersStrip } from "@/components/shared/offers-strip";
 import {
   cartTotals,
   FREE_DELIVERY_THRESHOLD,
@@ -85,6 +86,8 @@ export function CartView() {
       <p className="mt-1 text-sm text-muted-foreground">
         {items.length} item{items.length === 1 ? "" : "s"} in your cart
       </p>
+
+      <OffersStrip className="mt-6" />
 
       <div className="mt-8 grid gap-8 lg:grid-cols-3 lg:items-start">
         <div className="flex flex-col divide-y divide-border rounded-2xl border border-border lg:col-span-2">

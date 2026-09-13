@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/contact/contact-form";
+import { WhatsAppGlyph } from "@/components/icons/social";
 import { BUSINESS } from "@/lib/business";
 
 export const metadata: Metadata = {
@@ -37,6 +38,18 @@ export default function ContactPage() {
             </div>
           </a>
           <a
+            href={`https://wa.me/${BUSINESS.whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-start gap-3 rounded-2xl border border-border p-4 hover:border-primary/40"
+          >
+            <WhatsAppGlyph className="mt-0.5 size-5 shrink-0 text-primary" />
+            <div>
+              <p className="text-sm font-medium text-foreground">WhatsApp</p>
+              <p className="text-sm text-muted-foreground">Chat with us directly</p>
+            </div>
+          </a>
+          <a
             href={`mailto:${BUSINESS.email}`}
             className="flex items-start gap-3 rounded-2xl border border-border p-4 hover:border-primary/40"
           >
@@ -46,6 +59,13 @@ export default function ContactPage() {
               <p className="text-sm text-muted-foreground">{BUSINESS.email}</p>
             </div>
           </a>
+          <div className="flex items-start gap-3 rounded-2xl border border-border p-4">
+            <Clock className="mt-0.5 size-5 shrink-0 text-primary" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Business Hours</p>
+              <p className="text-sm text-muted-foreground">{BUSINESS.hours}</p>
+            </div>
+          </div>
         </div>
 
         <div className="sm:col-span-3">

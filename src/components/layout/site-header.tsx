@@ -4,9 +4,11 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { LayoutDashboard, LogOut, Menu, Search, User as UserIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, Phone, Search, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { WhatsAppGlyph } from "@/components/icons/social";
+import { BUSINESS } from "@/lib/business";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,8 +29,9 @@ import type { User as AppUser } from "@/generated/prisma/client";
 /**
  * A nav link is active only when both its path AND its query params
  * (specifically `category`) match the current URL — comparing pathname
- * alone would make "Menu" (/menu) and "Gift Boxes" (/menu?category=
- * gift-boxes) both light up together any time you're anywhere under /menu.
+ * alone would make "Menu" (/menu) and "Seasonal Specials" (/menu?category=
+ * seasonal-specials) both light up together any time you're anywhere under
+ * /menu.
  */
 function isLinkActive(href: string, pathname: string, searchParams: URLSearchParams) {
   const [linkPath, linkQuery] = href.split("?");
@@ -105,6 +108,32 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
         </form>
 
         <div className="ml-auto flex items-center gap-1 md:ml-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            render={<a href={`tel:${BUSINESS.phone.replace(/\s+/g, "")}`} />}
+            nativeButton={false}
+            aria-label="Call us"
+            title="Call us"
+          >
+            <Phone className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            render={
+              <a
+                href={`https://wa.me/${BUSINESS.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+            nativeButton={false}
+            aria-label="Chat on WhatsApp"
+            title="Chat on WhatsApp"
+          >
+            <WhatsAppGlyph className="size-4" />
+          </Button>
           <CartSheet />
 
           {user ? (

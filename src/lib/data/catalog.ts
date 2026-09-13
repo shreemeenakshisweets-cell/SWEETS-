@@ -1,10 +1,10 @@
-import type { Promotion, Testimonial } from "@/types/catalog";
+import type { Testimonial } from "@/types/catalog";
 import { placeholderImage } from "@/lib/data/placeholder-image";
 
 // Real product/category catalog comes from the database via
 // src/lib/data/storefront.ts (admin-managed — see /admin/products and
-// /admin/categories). Testimonials and promotions below have no admin UI
-// yet, so they stay as static marketing content for now.
+// /admin/categories). Testimonials below have no admin UI yet, so they
+// stay as static marketing content for now.
 
 export const testimonials: Testimonial[] = [
   {
@@ -33,24 +33,5 @@ export const testimonials: Testimonial[] = [
     quote:
       "Andhra Mixture is dangerously addictive. Delivery tracking kept me updated the whole way — really smooth experience.",
     avatarUrl: placeholderImage("LN", { size: 128 }),
-  },
-];
-
-export const promotions: Promotion[] = [
-  {
-    id: "promo-welcome",
-    title: "Flat 10% off your first order",
-    description: "New here? Use code WELCOME10 at checkout.",
-    code: "WELCOME10",
-    imageUrl: placeholderImage("Flat 10% Off", { bg: "b3401f", fg: "fff7ee" }),
-    ctaHref: "/menu",
-  },
-  {
-    id: "promo-festive",
-    title: "Festive gifting starts here",
-    description: "Free delivery on all Gift Box orders above ₹999.",
-    code: "FESTIVEFREE",
-    imageUrl: placeholderImage("Festive Gifting", { bg: "7a6118", fg: "fffbef" }),
-    ctaHref: "/menu?category=gift-boxes",
   },
 ];

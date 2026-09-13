@@ -1,4 +1,5 @@
 import { Hero } from "@/components/home/hero";
+import { OffersStrip } from "@/components/shared/offers-strip";
 import { CategoryGrid } from "@/components/home/category-grid";
 import { FeaturedProducts } from "@/components/home/featured-products";
 import { Testimonials } from "@/components/home/testimonials";
@@ -20,6 +21,7 @@ export default async function HomePage() {
           standalone Promotions section (the same two offers again) was
           dropped to avoid repeating them. */}
       <Hero banners={banners} />
+      <OffersStrip className="rounded-none border-x-0 border-t-0" />
       <CategoryGrid categories={categories} />
       <FeaturedProducts products={featured} />
       <Testimonials testimonials={testimonials} />

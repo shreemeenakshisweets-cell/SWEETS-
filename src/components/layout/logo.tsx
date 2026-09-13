@@ -24,6 +24,9 @@ export function Logo({ className }: { className?: string }) {
         <span className="font-heading text-base font-semibold tracking-tight text-foreground sm:text-lg">
           Meenakshi
         </span>
+        <span className="text-[0.62rem] font-bold tracking-wide text-primary sm:text-xs">
+          Sweets &amp; Savouries
+        </span>
       </span>
     </Link>
   );

@@ -1,17 +1,18 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { Separator } from "@/components/ui/separator";
-import { FacebookGlyph, InstagramGlyph } from "@/components/icons/social";
+import { FacebookGlyph, InstagramGlyph, WhatsAppGlyph } from "@/components/icons/social";
+import { BUSINESS } from "@/lib/business";
 
 const columns = [
   {
     heading: "Shop",
     links: [
       { href: "/menu", label: "All Products" },
-      { href: "/menu?category=sweets", label: "Traditional Sweets" },
-      { href: "/menu?category=savouries", label: "Savouries & Namkeen" },
-      { href: "/menu?category=gift-boxes", label: "Gift Boxes" },
+      { href: "/menu?category=sweets", label: "Sweets" },
+      { href: "/menu?category=savouries", label: "Savouries" },
+      { href: "/menu?category=seasonal-specials", label: "Seasonal Specials" },
     ],
   },
   {
@@ -47,17 +48,31 @@ export function SiteFooter() {
             <div className="mt-5 flex flex-col gap-2 text-sm text-muted-foreground">
               <span className="flex items-start gap-2">
                 <MapPin className="mt-0.5 size-4 shrink-0" />
-                Plot No. 60, Sri Lakshmi Venkateswara Gardens, Tadigadapa,
-                Penamaluru, Vijayawada, Andhra Pradesh 521134
+                {BUSINESS.address}
               </span>
-              <a href="tel:+911234567890" className="flex items-center gap-2 hover:text-primary">
-                <Phone className="size-4 shrink-0" /> +91 12345 67890
-              </a>
+              <span className="flex items-center gap-2">
+                <Clock className="size-4 shrink-0" />
+                {BUSINESS.hours}
+              </span>
               <a
-                href="mailto:orders@shreemeenakshisweets.com"
+                href={`tel:${BUSINESS.phone.replace(/\s+/g, "")}`}
                 className="flex items-center gap-2 hover:text-primary"
               >
-                <Mail className="size-4 shrink-0" /> orders@shreemeenakshisweets.com
+                <Phone className="size-4 shrink-0" /> {BUSINESS.phone}
+              </a>
+              <a
+                href={`https://wa.me/${BUSINESS.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-primary"
+              >
+                <WhatsAppGlyph className="size-4 shrink-0" /> Chat on WhatsApp
+              </a>
+              <a
+                href={`mailto:${BUSINESS.email}`}
+                className="flex items-center gap-2 hover:text-primary"
+              >
+                <Mail className="size-4 shrink-0" /> {BUSINESS.email}
               </a>
             </div>
             <div className="mt-5 flex gap-3">
@@ -106,7 +121,7 @@ export function SiteFooter() {
             &copy; {new Date().getFullYear()} Shree Meenakshi Sweets & Savouries.
             All rights reserved.
           </p>
-          <p>FSSAI Lic. No. 20126121000588 &nbsp;&middot;&nbsp; GSTIN 37ARPPB5539B2ZU</p>
+          <p>FSSAI Lic. No. {BUSINESS.fssai} &nbsp;&middot;&nbsp; GSTIN {BUSINESS.gstin}</p>
         </div>
       </div>
     </footer>
