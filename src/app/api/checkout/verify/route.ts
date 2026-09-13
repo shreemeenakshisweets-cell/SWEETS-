@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { verifyPaymentSchema } from "@/lib/validation/checkout";
 import { createInvoiceForOrder } from "@/lib/data/admin/invoices";
 import { redeemCouponIfAny } from "@/lib/data/coupon-validation";
-import { sendOrderStatusEmail } from "@/lib/notifications/order-email";
+import { notifyBusinessOfNewOrder, sendOrderStatusEmail } from "@/lib/notifications/order-email";
 
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
     // Outside the transaction — network I/O, and must never block/fail the
     // response just because email delivery hiccups.
     await sendOrderStatusEmail(order.id, "CONFIRMED");
+    await notifyBusinessOfNewOrder(order.id);
   }
 
   return NextResponse.json({ success: true, orderNumber: order.orderNumber });

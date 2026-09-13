@@ -128,3 +128,62 @@ export async function sendOrderStatusEmail(orderId: string, status: OrderStatus)
     console.error(`Failed to send order status email (order ${orderId}, status ${status}):`, error);
   }
 }
+
+/**
+ * Alerts the business inbox (BUSINESS.email) that a new paid order has come
+ * in — separate from sendOrderStatusEmail, which is the customer-facing
+ * message. Best-effort, same as above: never throws, so an email outage
+ * can't break checkout.
+ */
+export async function notifyBusinessOfNewOrder(orderId: string) {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { user: true, items: true, shippingAddress: true },
+    });
+    if (!order || !process.env.RESEND_API_KEY) return;
+
+    const itemsHtml = order.items
+      .map(
+        (item) => `<tr>
+          <td style="padding:4px 0;color:${BRAND.text};">${item.productName} (${item.variantLabel}) × ${item.quantity}</td>
+          <td style="padding:4px 0;text-align:right;color:${BRAND.muted};">${formatCurrency(Number(item.total))}</td>
+        </tr>`
+      )
+      .join("");
+
+    const html = `
+<div style="background:${BRAND.cream};padding:32px 16px;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:${BRAND.text};">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border:1px solid ${BRAND.border};border-radius:16px;overflow:hidden;">
+    <div style="background:${BRAND.primary};padding:20px 24px;">
+      <p style="margin:0;color:#fffbef;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">New Order</p>
+    </div>
+    <div style="padding:28px 24px;">
+      <h1 style="margin:0 0 12px;font-size:20px;">Order ${order.orderNumber}</h1>
+      <p style="margin:0 0 4px;font-size:14px;"><strong>${order.shippingAddress.fullName}</strong> · ${order.shippingAddress.phone}</p>
+      <p style="margin:0 0 16px;font-size:13px;color:${BRAND.muted};">
+        ${order.shippingAddress.line1}${order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ""},
+        ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}
+      </p>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        ${itemsHtml}
+      </table>
+      <p style="margin:16px 0 0;font-weight:600;font-size:15px;">Total: ${formatCurrency(Number(order.total))}</p>
+      <a href="${siteUrl}/admin/orders/${order.id}"
+         style="display:inline-block;margin-top:24px;background:${BRAND.primary};color:#fffbef;text-decoration:none;padding:10px 20px;border-radius:10px;font-size:14px;">
+        View in Admin
+      </a>
+    </div>
+  </div>
+</div>`;
+
+    await getResend().emails.send({
+      from: `${BUSINESS.tradeName} <${process.env.RESEND_FROM_EMAIL || "orders@resend.dev"}>`,
+      to: BUSINESS.email,
+      subject: `New order — ${order.orderNumber} (${formatCurrency(Number(order.total))})`,
+      html,
+    });
+  } catch (error) {
+    console.error(`Failed to notify business of new order ${orderId}:`, error);
+  }
+}
