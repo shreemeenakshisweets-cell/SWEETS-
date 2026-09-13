@@ -46,12 +46,14 @@ export const metadata: Metadata = {
     siteName: "Shree Meenakshi Sweets & Savouries",
     locale: "en_IN",
     type: "website",
+    images: [{ url: "/brand/logo.png", width: 1536, height: 1024, alt: "Shree Meenakshi Sweets & Savouries" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Shree Meenakshi Sweets & Savouries",
     description:
       "Order authentic Indian sweets and savouries online — traditional recipes, premium ingredients, delivered fresh nationwide.",
+    images: ["/brand/logo.png"],
   },
   robots: {
     index: true,
