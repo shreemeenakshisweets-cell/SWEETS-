@@ -46,6 +46,7 @@ export function ProductDetail({
         productName: product.name,
         image: product.images[0],
         variantId: variant.id,
+        sku: variant.sku,
         variantLabel: variant.label,
         unitPrice: variant.price,
         maxStock: variant.stock,

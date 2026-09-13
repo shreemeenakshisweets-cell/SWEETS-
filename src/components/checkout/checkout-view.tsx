@@ -75,7 +75,7 @@ export function CheckoutView({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: items.map((i) => ({ sku: i.variantId, quantity: i.quantity })),
+          items: items.map((i) => ({ sku: i.sku, quantity: i.quantity })),
           addressId: selectedAddressId,
           deliveryInstructions,
           couponCode: coupon?.code,

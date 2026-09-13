@@ -38,6 +38,7 @@ export function ProductCard({ product }: { product: Product }) {
       productName: product.name,
       image: product.images[0],
       variantId: selectedVariant.id,
+      sku: selectedVariant.sku,
       variantLabel: selectedVariant.label,
       unitPrice: selectedVariant.price,
       maxStock: selectedVariant.stock,
