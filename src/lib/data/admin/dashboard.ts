@@ -80,6 +80,7 @@ export async function getSalesByDay(days = 14) {
 export async function getTopProducts(limit = 5) {
   const grouped = await prisma.orderItem.groupBy({
     by: ["productName"],
+    where: { order: { status: { in: [...PAID_STATUSES] } } },
     _sum: { quantity: true, total: true },
     orderBy: { _sum: { total: "desc" } },
     take: limit,
