@@ -41,10 +41,24 @@ export async function POST(request: NextRequest) {
   const isValid = verifyPaymentSignature({ razorpayOrderId, razorpayPaymentId, razorpaySignature });
 
   if (!isValid) {
-    await prisma.payment.update({
-      where: { id: payment.id },
-      data: { status: "FAILED", failureReason: "Signature verification failed", razorpayPaymentId },
-    });
+    // A retry re-runs checkout and creates a brand new Order/Payment pair
+    // (see /api/checkout), so this one is dead — cancel it rather than
+    // leaving it stuck at PENDING forever, indistinguishable in the admin
+    // orders list from a fresh, still-in-progress checkout. Guarded on
+    // still-PENDING in case a webhook already confirmed it first.
+    await prisma.$transaction([
+      prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: "FAILED", failureReason: "Signature verification failed", razorpayPaymentId },
+      }),
+      prisma.order.updateMany({
+        where: { id: order.id, status: "PENDING" },
+        data: { status: "CANCELLED" },
+      }),
+      prisma.orderStatusHistory.create({
+        data: { orderId: order.id, status: "CANCELLED", note: "Payment verification failed" },
+      }),
+    ]);
     return NextResponse.json({ error: "Payment verification failed" }, { status: 400 });
   }
 

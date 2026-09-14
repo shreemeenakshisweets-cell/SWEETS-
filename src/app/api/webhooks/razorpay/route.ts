@@ -74,14 +74,31 @@ export async function POST(request: NextRequest) {
     await sendOrderStatusEmail(payment.orderId, "CONFIRMED");
     await notifyBusinessOfNewOrder(payment.orderId);
   } else if (event.event === "payment.failed" && payment.status === "PENDING") {
-    await prisma.payment.update({
-      where: { id: payment.id },
-      data: {
-        status: "FAILED",
-        razorpayPaymentId,
-        failureReason: paymentEntity?.error_description ?? "Payment failed",
-      },
-    });
+    // A retry re-runs checkout and creates a brand new Order/Payment pair
+    // (see /api/checkout), so this one is dead — cancel it rather than
+    // leaving it stuck at PENDING forever, indistinguishable in the admin
+    // orders list from a fresh, still-in-progress checkout.
+    await prisma.$transaction([
+      prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: "FAILED",
+          razorpayPaymentId,
+          failureReason: paymentEntity?.error_description ?? "Payment failed",
+        },
+      }),
+      prisma.order.updateMany({
+        where: { id: payment.orderId, status: "PENDING" },
+        data: { status: "CANCELLED" },
+      }),
+      prisma.orderStatusHistory.create({
+        data: {
+          orderId: payment.orderId,
+          status: "CANCELLED",
+          note: paymentEntity?.error_description ?? "Payment failed",
+        },
+      }),
+    ]);
   }
 
   return NextResponse.json({ received: true });
