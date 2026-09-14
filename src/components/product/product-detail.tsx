@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Heart, Leaf, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ export function ProductDetail({
   category: Category | undefined;
   related: Product[];
 }) {
+  const router = useRouter();
   const [selectedVariantId, setSelectedVariantId] = React.useState(
     product.variants.find((v) => v.isDefault)?.id ?? product.variants[0].id
   );
@@ -53,7 +55,9 @@ export function ProductDetail({
       },
       quantity
     );
-    toast.success(`Added ${quantity} × ${product.name} (${variant.label}) to cart`);
+    toast.success(`Added ${quantity} × ${product.name} (${variant.label}) to cart`, {
+      action: { label: "View Cart", onClick: () => router.push("/cart") },
+    });
   }
 
   return (

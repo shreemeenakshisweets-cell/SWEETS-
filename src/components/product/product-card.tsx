@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Heart, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 import type { Product } from "@/types/catalog";
 
 export function ProductCard({ product }: { product: Product }) {
+  const router = useRouter();
   const variants = product.variants;
   const [selectedVariantId, setSelectedVariantId] = React.useState(
     variants.find((v) => v.isDefault)?.id ?? variants[0].id
@@ -43,7 +45,9 @@ export function ProductCard({ product }: { product: Product }) {
       unitPrice: selectedVariant.price,
       maxStock: selectedVariant.stock,
     });
-    toast.success(`Added ${product.name} (${selectedVariant.label}) to cart`);
+    toast.success(`Added ${product.name} (${selectedVariant.label}) to cart`, {
+      action: { label: "View Cart", onClick: () => router.push("/cart") },
+    });
   }
 
   return (
