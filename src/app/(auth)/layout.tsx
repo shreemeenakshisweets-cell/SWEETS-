@@ -1,12 +1,27 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { Logo } from "@/components/layout/logo";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-12">
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_15%,color-mix(in_oklch,var(--primary)_16%,transparent),transparent_55%),radial-gradient(circle_at_85%_85%,color-mix(in_oklch,var(--accent)_12%,transparent),transparent_50%)]"
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4 py-12">
+      {/* Kept deliberately faint (opacity-[0.22]) — this is decorative
+          texture behind a login/signup form, not artwork to compete with it. */}
+      <Image
+        src="/backgrounds/auth-mobile.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="-z-10 object-cover opacity-[0.22] sm:hidden"
+      />
+      <Image
+        src="/backgrounds/auth-desktop.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="-z-10 hidden object-cover opacity-[0.22] sm:block"
       />
       <div className="mb-8">
         <Logo />
