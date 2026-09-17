@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { MapPin, ShieldCheck } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 
 /**
@@ -45,6 +46,18 @@ export function BrandStory() {
             behind everything we send out — fresh, hygienic, and delivered
             with the same pride we&apos;d want on our own table.
           </p>
+
+          <div className="mt-6 flex flex-col gap-2.5 rounded-2xl border border-border bg-background p-4 text-sm">
+            <p className="font-medium text-foreground">{BUSINESS.legalName}</p>
+            <p className="flex items-start gap-2 text-muted-foreground">
+              <MapPin className="mt-0.5 size-4 shrink-0 text-primary" />
+              {BUSINESS.address}
+            </p>
+            <p className="flex items-center gap-2 text-muted-foreground">
+              <ShieldCheck className="size-4 shrink-0 text-primary" />
+              FSSAI Lic. No. {BUSINESS.fssai} &nbsp;&middot;&nbsp; GSTIN {BUSINESS.gstin}
+            </p>
+          </div>
         </div>
       </div>
     </section>

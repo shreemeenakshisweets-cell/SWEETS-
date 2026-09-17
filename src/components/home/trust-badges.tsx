@@ -10,17 +10,19 @@ const badges = [
   { icon: Lock, label: "Safe & Secure Payments" },
 ] as const;
 
-/** Full-width strip of trust signals — what makes this a shop worth ordering from. */
+/**
+ * A thin, continuously-scrolling strip of trust signals — deliberately
+ * not a static grid (that ate a full screen of height on mobile). Same
+ * duplicated-content marquee technique as the top-bar offers ticker.
+ */
 export function TrustBadges() {
   return (
-    <div className="bg-foreground text-background">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-4 px-4 py-6 sm:px-6 lg:px-8">
-        {badges.map(({ icon: Icon, label }) => (
-          <div key={label} className="flex flex-col items-center gap-2 text-center">
-            <Icon className="size-6 text-primary-foreground/90" strokeWidth={1.5} />
-            <span className="max-w-20 text-xs font-medium tracking-tight text-background/90">
-              {label}
-            </span>
+    <div className="overflow-hidden bg-foreground py-3">
+      <div className="animate-marquee flex w-max gap-10 whitespace-nowrap">
+        {[...badges, ...badges].map(({ icon: Icon, label }, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <Icon className="size-4 shrink-0 text-primary-foreground/90" strokeWidth={1.5} />
+            <span className="text-xs font-medium text-background/90">{label}</span>
           </div>
         ))}
       </div>
