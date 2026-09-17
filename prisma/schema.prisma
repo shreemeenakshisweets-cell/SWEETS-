@@ -78,14 +78,15 @@ enum NotificationChannel {
 
 /// Mirrors the Supabase `auth.users` row (id is the Supabase auth UUID).
 model User {
-  id        String   @id @db.Uuid
-  email     String   @unique
-  phone     String?
-  fullName  String?
-  avatarUrl String?
-  role      Role     @default(CUSTOMER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @db.Uuid
+  email         String   @unique
+  phone         String?  @unique
+  phoneVerified Boolean  @default(false)
+  fullName      String?
+  avatarUrl     String?
+  role          Role     @default(CUSTOMER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   addresses     Address[]
   orders        Order[]

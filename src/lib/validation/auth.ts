@@ -25,6 +25,21 @@ export const otpVerifySchema = z.object({
   token: z.string().trim().length(6, "Enter the 6-digit code"),
 });
 
+// 10-digit Indian mobile number, optionally already prefixed with +91.
+export const phoneSchema = z
+  .string()
+  .trim()
+  .regex(/^(\+91)?[6-9]\d{9}$/, "Enter a valid 10-digit mobile number");
+
+export const phoneOnlySchema = z.object({
+  phone: phoneSchema,
+});
+
+export const phoneOtpVerifySchema = z.object({
+  phone: phoneSchema,
+  token: z.string().trim().length(6, "Enter the 6-digit code"),
+});
+
 export const newPasswordSchema = z
   .object({
     password: passwordSchema,
@@ -40,3 +55,5 @@ export type SignUpInput = z.infer<typeof signUpSchema>;
 export type EmailOnlyInput = z.infer<typeof emailOnlySchema>;
 export type OtpVerifyInput = z.infer<typeof otpVerifySchema>;
 export type NewPasswordInput = z.infer<typeof newPasswordSchema>;
+export type PhoneOnlyInput = z.infer<typeof phoneOnlySchema>;
+export type PhoneOtpVerifyInput = z.infer<typeof phoneOtpVerifySchema>;

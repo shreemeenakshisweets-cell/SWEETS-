@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { requireUser } from "@/lib/auth";
 import { signOutAction } from "@/app/(auth)/actions";
 import { Button } from "@/components/ui/button";
+import { PhoneSettings } from "@/components/account/phone-settings";
 
 export const metadata: Metadata = { title: "My Account" };
 
@@ -49,7 +50,11 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+      <div className="mt-8">
+        <PhoneSettings currentPhone={user.phone} phoneVerified={user.phoneVerified} />
+      </div>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
         {links.map(({ icon: Icon, label, description, href }) => {
           const content = (
             <>

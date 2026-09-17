@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { MapPin, PackageCheck, Plus } from "lucide-react";
+import { MapPin, PackageCheck, Phone, Plus, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,18 +16,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { AddressForm } from "@/components/checkout/address-form";
+import { requestPhoneOtpAction, verifyPhoneOtpAction } from "@/app/(auth)/actions";
+import { phoneOtpVerifySchema } from "@/lib/validation/auth";
+import { fromE164 } from "@/lib/utils/phone";
 import { cartItemCount, cartTotals, useCartStore } from "@/lib/store/cart-store";
 import { formatCurrency } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils";
 import type { Address } from "@/generated/prisma/client";
 
+const OTP_RESEND_SECONDS = 30;
+
 export function CheckoutView({
   initialAddresses,
   customerEmail,
+  customerPhone,
+  phoneVerified,
 }: {
   initialAddresses: Address[];
   customerEmail: string;
+  customerPhone: string | null;
+  phoneVerified: boolean;
 }) {
   const router = useRouter();
   const [mounted, setMounted] = React.useState(false);
@@ -38,6 +52,23 @@ export function CheckoutView({
   const [deliveryInstructions, setDeliveryInstructions] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [placingOrder, setPlacingOrder] = React.useState(false);
+
+  // Phone re-verification gate — only relevant when the account has a
+  // verified phone; once confirmed for this checkout session, subsequent
+  // "Pay" clicks skip straight to payment.
+  const [phoneOtpVerified, setPhoneOtpVerified] = React.useState(false);
+  const [otpDialogOpen, setOtpDialogOpen] = React.useState(false);
+  const [otpStep, setOtpStep] = React.useState<"send" | "code">("send");
+  const [otpCode, setOtpCode] = React.useState("");
+  const [otpLoading, setOtpLoading] = React.useState(false);
+  const [otpResendIn, setOtpResendIn] = React.useState(0);
+  const phoneDigits = customerPhone ? fromE164(customerPhone) : "";
+
+  React.useEffect(() => {
+    if (otpResendIn <= 0) return;
+    const id = setInterval(() => setOtpResendIn((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(id);
+  }, [otpResendIn]);
 
   const items = useCartStore((s) => s.items);
   const coupon = useCartStore((s) => s.coupon);
@@ -59,7 +90,7 @@ export function CheckoutView({
     setDialogOpen(false);
   }
 
-  async function handlePlaceOrder() {
+  function handlePlaceOrderClick() {
     if (!selectedAddressId) {
       toast.error("Select a delivery address");
       return;
@@ -68,7 +99,52 @@ export function CheckoutView({
       toast.error("Your cart is empty");
       return;
     }
+    // Only accounts with a verified phone go through this step-up check —
+    // everyone else's checkout is unchanged.
+    if (phoneVerified && !phoneOtpVerified) {
+      setOtpDialogOpen(true);
+      if (otpStep === "send" && otpResendIn === 0) void sendCheckoutOtp();
+      return;
+    }
+    void proceedToPayment();
+  }
 
+  async function sendCheckoutOtp() {
+    setOtpLoading(true);
+    const result = await requestPhoneOtpAction({ phone: phoneDigits });
+    setOtpLoading(false);
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("We sent a 6-digit code by SMS");
+    setOtpStep("code");
+    setOtpResendIn(OTP_RESEND_SECONDS);
+  }
+
+  async function verifyCheckoutOtp(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = phoneOtpVerifySchema.safeParse({ phone: phoneDigits, token: otpCode });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Enter the 6-digit code");
+      return;
+    }
+    setOtpLoading(true);
+    const result = await verifyPhoneOtpAction(parsed.data);
+    setOtpLoading(false);
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+    setPhoneOtpVerified(true);
+    setOtpDialogOpen(false);
+    setOtpStep("send");
+    setOtpCode("");
+    toast.success("Phone verified");
+    void proceedToPayment();
+  }
+
+  async function proceedToPayment() {
     setPlacingOrder(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -271,10 +347,17 @@ export function CheckoutView({
             </div>
           </div>
 
+          {phoneVerified && (
+            <div className="mt-4 flex items-center gap-2 rounded-lg bg-secondary/40 px-3 py-2 text-xs text-foreground/80">
+              <ShieldCheck className="size-3.5 shrink-0 text-primary" />
+              We&apos;ll confirm +91 {phoneDigits} with an SMS code before placing your order.
+            </div>
+          )}
+
           <Button
             size="lg"
             className="mt-5 w-full gap-2"
-            onClick={handlePlaceOrder}
+            onClick={handlePlaceOrderClick}
             disabled={placingOrder || items.length === 0 || !selectedAddressId}
           >
             <PackageCheck className="size-4" />
@@ -285,6 +368,56 @@ export function CheckoutView({
           </p>
         </aside>
       </div>
+
+      <Dialog
+        open={otpDialogOpen}
+        onOpenChange={(open) => {
+          setOtpDialogOpen(open);
+          if (!open) {
+            setOtpStep("send");
+            setOtpCode("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Phone className="size-4 text-primary" /> Confirm Your Phone Number
+            </DialogTitle>
+          </DialogHeader>
+          {otpStep === "send" ? (
+            <p className="text-sm text-muted-foreground">
+              {otpLoading ? "Sending a code..." : `Sending a code to +91 ${phoneDigits}...`}
+            </p>
+          ) : (
+            <form onSubmit={verifyCheckoutOtp} className="flex flex-col gap-4">
+              <p className="text-sm text-muted-foreground">
+                Enter the 6-digit code sent to +91 {phoneDigits} to confirm this order.
+              </p>
+              <div className="flex justify-center">
+                <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
+                  <InputOTPGroup>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <InputOTPSlot key={i} index={i} />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <Button type="submit" disabled={otpLoading || otpCode.length < 6}>
+                {otpLoading ? "Verifying..." : "Verify & Place Order"}
+              </Button>
+              <button
+                type="button"
+                onClick={() => void sendCheckoutOtp()}
+                disabled={otpResendIn > 0 || otpLoading}
+                className="text-center text-xs text-primary hover:underline disabled:text-muted-foreground disabled:no-underline"
+              >
+                {otpResendIn > 0 ? `Resend code in ${otpResendIn}s` : "Resend code"}
+              </button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

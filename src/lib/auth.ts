@@ -25,10 +25,17 @@ export const getCurrentUser = cache(async (): Promise<AppUser | null> => {
 
   if (!authUser) return null;
 
+  // Supabase leaves `phone` as "" (not undefined/null) when unset — `|| null`
+  // catches that, `??` wouldn't since "" isn't nullish.
+  const phone = authUser.phone || null;
+  const phoneVerified = Boolean(authUser.phone_confirmed_at);
+
   return prisma.user.upsert({
     where: { id: authUser.id },
     update: {
       email: authUser.email ?? undefined,
+      phone,
+      phoneVerified,
     },
     create: {
       id: authUser.id,
@@ -36,7 +43,8 @@ export const getCurrentUser = cache(async (): Promise<AppUser | null> => {
       fullName:
         (authUser.user_metadata?.full_name as string | undefined) ?? null,
       avatarUrl: (authUser.user_metadata?.avatar_url as string | undefined) ?? null,
-      phone: authUser.phone ?? null,
+      phone,
+      phoneVerified,
     },
   });
 });

@@ -81,6 +81,21 @@ export function LoginForm() {
         </Link>
       </p>
 
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs text-muted-foreground">or</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <Button
+        variant="outline"
+        size="lg"
+        render={<Link href="/phone" />}
+        nativeButton={false}
+      >
+        Continue with Phone Number
+      </Button>
+
       <p className="text-center text-sm text-muted-foreground">
         New here?{" "}
         <Link href="/signup" className="font-medium text-primary hover:underline">

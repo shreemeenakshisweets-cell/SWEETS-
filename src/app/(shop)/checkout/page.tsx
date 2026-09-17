@@ -14,5 +14,12 @@ export default async function CheckoutPage() {
     orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
   });
 
-  return <CheckoutView initialAddresses={addresses} customerEmail={user.email} />;
+  return (
+    <CheckoutView
+      initialAddresses={addresses}
+      customerEmail={user.email}
+      customerPhone={user.phone}
+      phoneVerified={user.phoneVerified}
+    />
+  );
 }
