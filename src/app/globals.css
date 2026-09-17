@@ -145,3 +145,25 @@
     background-attachment: fixed;
   }
 }
+
+/* Top-bar offers ticker — content is duplicated by the component, so a
+   -50% translate loops seamlessly back to the start. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 16s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
