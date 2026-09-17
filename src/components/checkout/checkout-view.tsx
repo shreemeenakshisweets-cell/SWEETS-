@@ -143,7 +143,7 @@ export function CheckoutView({
 
       <div className="mt-8 grid gap-8 lg:grid-cols-3 lg:items-start">
         <div className="flex flex-col gap-6 lg:col-span-2">
-          <section className="rounded-2xl border border-border p-5">
+          <section className="rounded-2xl border border-border bg-background p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-foreground">
                 <MapPin className="size-4 text-primary" /> Delivery Address
@@ -174,7 +174,7 @@ export function CheckoutView({
                       "flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors",
                       selectedAddressId === address.id
                         ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/40"
+                        : "border-border bg-background hover:border-primary/40"
                     )}
                   >
                     <input
@@ -204,7 +204,7 @@ export function CheckoutView({
             )}
           </section>
 
-          <section className="rounded-2xl border border-border p-5">
+          <section className="rounded-2xl border border-border bg-background p-5">
             <h2 className="mb-3 font-heading text-lg font-semibold text-foreground">
               Delivery Instructions
             </h2>
@@ -216,7 +216,7 @@ export function CheckoutView({
             />
           </section>
 
-          <section className="rounded-2xl border border-border p-5">
+          <section className="rounded-2xl border border-border bg-background p-5">
             <h2 className="mb-4 font-heading text-lg font-semibold text-foreground">
               Order Review ({count} item{count === 1 ? "" : "s"})
             </h2>

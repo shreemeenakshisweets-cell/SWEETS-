@@ -111,7 +111,7 @@ export function CartSheet() {
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 rounded-full border border-border px-1">
+                        <div className="flex items-center gap-2 rounded-full border border-border bg-background px-1">
                           <button
                             className="flex size-8 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
                             onClick={() => updateQuantity(item.variantId, item.quantity - 1)}

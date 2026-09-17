@@ -90,7 +90,7 @@ export function CartView() {
       <OffersStrip className="mt-6" />
 
       <div className="mt-8 grid gap-8 lg:grid-cols-3 lg:items-start">
-        <div className="flex flex-col divide-y divide-border rounded-2xl border border-border lg:col-span-2">
+        <div className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-background lg:col-span-2">
           {items.map((item) => (
             <div key={item.variantId} className="flex gap-4 p-4 sm:p-5">
               <div className="relative size-20 shrink-0 overflow-hidden rounded-xl border border-border bg-muted sm:size-24">
@@ -122,7 +122,7 @@ export function CartView() {
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 rounded-full border border-border px-1.5">
+                  <div className="flex items-center gap-2 rounded-full border border-border bg-background px-1.5">
                     <button
                       className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground"
                       onClick={() => updateQuantity(item.variantId, item.quantity - 1)}

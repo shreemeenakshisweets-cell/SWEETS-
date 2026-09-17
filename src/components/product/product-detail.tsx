@@ -139,7 +139,7 @@ export function ProductDetail({
                     "rounded-xl border px-4 py-2 text-sm font-medium transition-colors",
                     v.id === selectedVariantId
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-foreground hover:border-primary/50"
+                      : "border-border bg-background text-foreground hover:border-primary/50"
                   )}
                 >
                   {v.label}
@@ -165,7 +165,7 @@ export function ProductDetail({
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <div className="flex items-center gap-2 rounded-xl border border-border px-2">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-2">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 className="flex size-11 items-center justify-center text-muted-foreground hover:text-foreground"

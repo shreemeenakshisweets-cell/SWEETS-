@@ -169,7 +169,7 @@ export function MenuBrowser({
               ))}
             </SelectContent>
           </Select>
-          <div className="flex items-center gap-1 rounded-lg border border-border p-1">
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-background p-1">
             {DENSITY_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -217,7 +217,7 @@ export function MenuBrowser({
             "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
             category === "all"
               ? "border-primary bg-primary text-primary-foreground"
-              : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+              : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
           )}
         >
           All
@@ -233,7 +233,7 @@ export function MenuBrowser({
               "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
               category === cat.slug
                 ? "border-primary bg-primary text-primary-foreground"
-                : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
             )}
           >
             {cat.name}
