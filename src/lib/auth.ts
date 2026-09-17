@@ -4,6 +4,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { normalizePhone } from "@/lib/utils/phone";
 import type { User as AppUser } from "@/generated/prisma/client";
 
 /**
@@ -26,8 +27,10 @@ export const getCurrentUser = cache(async (): Promise<AppUser | null> => {
   if (!authUser) return null;
 
   // Supabase leaves `phone` as "" (not undefined/null) when unset — `|| null`
-  // catches that, `??` wouldn't since "" isn't nullish.
-  const phone = authUser.phone || null;
+  // catches that, `??` wouldn't since "" isn't nullish. Normalized to
+  // "+91XXXXXXXXXX" so this column has one consistent shape regardless of
+  // whatever format Supabase happens to echo back.
+  const phone = authUser.phone ? normalizePhone(authUser.phone) : null;
   const phoneVerified = Boolean(authUser.phone_confirmed_at);
 
   return prisma.user.upsert({

@@ -2,8 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { randomBytes } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
-import { toE164 } from "@/lib/utils/phone";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
+import { sendMsg91Otp, verifyMsg91Otp } from "@/lib/msg91";
+import { normalizePhone } from "@/lib/utils/phone";
 import {
   emailOnlySchema,
   newPasswordSchema,
@@ -88,37 +93,57 @@ export async function verifyOtpAction(input: unknown): Promise<ActionResult> {
 }
 
 /**
- * Sends an OTP to sign in (or, for a brand-new number, sign up) with a
- * phone number — Supabase finds-or-creates by phone the same way its
- * email OTP does, so a phone that's already linked to an account just
- * logs that account in, and an unrecognized one creates a fresh account.
- * Also reused, unmodified, as the checkout step-up re-verification (see
- * CheckoutView) — the phone there already belongs to the signed-in user,
- * so verifying it just re-confirms the same session.
+ * Sends an OTP via MSG91 to sign in (or, for a brand-new number, sign up)
+ * with a phone number. MSG91 isn't one of Supabase's native phone-auth
+ * providers (Twilio/MessageBird/Vonage/TextLocal only), so the OTP itself
+ * is sent and checked entirely outside Supabase — see verifyPhoneOtpAction
+ * for how a verified number gets bridged into a real Supabase session.
  */
 export async function requestPhoneOtpAction(input: unknown): Promise<ActionResult> {
   const parsed = phoneOnlySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    phone: toE164(parsed.data.phone),
-    options: { shouldCreateUser: true },
-  });
-  if (error) return { error: error.message };
-  return { success: true };
+  const result = await sendMsg91Otp(parsed.data.phone);
+  return result.success ? { success: true } : { error: result.error };
 }
 
+/**
+ * On a correct MSG91 code: find-or-create the Supabase auth user for this
+ * phone (via the service-role Admin API, since there's no native
+ * phone-provider flow to lean on), give them a fresh single-use random
+ * password nobody ever sees, and immediately sign in with it through the
+ * request-scoped client so a normal Supabase session/cookie gets issued
+ * the standard way. A phone already verified on file finds the same
+ * account (updates its password) rather than creating a duplicate.
+ */
 export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult> {
   const parsed = phoneOtpVerifySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
+  const verified = await verifyMsg91Otp(parsed.data.phone, parsed.data.token);
+  if (!verified.success) return { error: verified.error };
+
+  const phone = normalizePhone(parsed.data.phone);
+  const tempPassword = randomBytes(24).toString("hex");
+  const admin = createAdminClient();
+
+  const existing = await prisma.user.findUnique({ where: { phone } });
+  if (existing) {
+    const { error } = await admin.auth.admin.updateUserById(existing.id, {
+      password: tempPassword,
+    });
+    if (error) return { error: error.message };
+  } else {
+    const { error } = await admin.auth.admin.createUser({
+      phone,
+      phone_confirm: true,
+      password: tempPassword,
+    });
+    if (error) return { error: error.message };
+  }
+
   const supabase = await createClient();
-  const { error } = await supabase.auth.verifyOtp({
-    phone: toE164(parsed.data.phone),
-    token: parsed.data.token,
-    type: "sms",
-  });
+  const { error } = await supabase.auth.signInWithPassword({ phone, password: tempPassword });
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
@@ -128,34 +153,75 @@ export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult
 /**
  * Adds a phone number to the *currently signed-in* account (account
  * settings "Add phone number", not the login flow) — sends the
- * confirmation OTP to it. Supabase rejects this outright if the phone is
- * already verified on a different account, which is what enforces "a
- * verified phone can't be linked to multiple accounts."
+ * confirmation OTP via MSG91.
  */
 export async function requestLinkPhoneAction(input: unknown): Promise<ActionResult> {
   const parsed = phoneOnlySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ phone: toE164(parsed.data.phone) });
-  if (error) return { error: error.message };
-  return { success: true };
+  const result = await sendMsg91Otp(parsed.data.phone);
+  return result.success ? { success: true } : { error: result.error };
 }
 
+/**
+ * On a correct MSG91 code, attaches the phone directly to the signed-in
+ * user via the Admin API (phone_confirm: true — we already did the real
+ * verification ourselves via MSG91). Supabase itself rejects this if the
+ * phone is already confirmed on a *different* account, which is what
+ * enforces "a verified phone can't be linked to multiple accounts."
+ */
 export async function verifyLinkPhoneAction(input: unknown): Promise<ActionResult> {
   const parsed = phoneOtpVerifySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.verifyOtp({
-    phone: toE164(parsed.data.phone),
-    token: parsed.data.token,
-    type: "phone_change",
+  const verified = await verifyMsg91Otp(parsed.data.phone, parsed.data.token);
+  if (!verified.success) return { error: verified.error };
+
+  const user = await getCurrentUser();
+  if (!user) return { error: "Please sign in again and retry." };
+
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.updateUserById(user.id, {
+    phone: normalizePhone(parsed.data.phone),
+    phone_confirm: true,
   });
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
   return { success: true };
+}
+
+/**
+ * Checkout step-up re-verification (see CheckoutView) — re-confirms
+ * possession of the phone *already verified on the signed-in account*
+ * before an order is placed. Deliberately separate from the login
+ * actions above: no Supabase user mutation here, just an MSG91
+ * send/verify gated on the phone matching this account's own.
+ */
+export async function requestCheckoutOtpAction(input: unknown): Promise<ActionResult> {
+  const parsed = phoneOnlySchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+
+  const user = await getCurrentUser();
+  if (!user?.phoneVerified || !user.phone || normalizePhone(user.phone) !== normalizePhone(parsed.data.phone)) {
+    return { error: "That doesn't match the phone number on your account." };
+  }
+
+  const result = await sendMsg91Otp(parsed.data.phone);
+  return result.success ? { success: true } : { error: result.error };
+}
+
+export async function verifyCheckoutOtpAction(input: unknown): Promise<ActionResult> {
+  const parsed = phoneOtpVerifySchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+
+  const user = await getCurrentUser();
+  if (!user?.phoneVerified || !user.phone || normalizePhone(user.phone) !== normalizePhone(parsed.data.phone)) {
+    return { error: "That doesn't match the phone number on your account." };
+  }
+
+  const result = await verifyMsg91Otp(parsed.data.phone, parsed.data.token);
+  return result.success ? { success: true } : { error: result.error };
 }
 
 export async function requestPasswordResetAction(input: unknown): Promise<ActionResult> {

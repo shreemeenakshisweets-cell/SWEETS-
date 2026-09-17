@@ -22,7 +22,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { AddressForm } from "@/components/checkout/address-form";
-import { requestPhoneOtpAction, verifyPhoneOtpAction } from "@/app/(auth)/actions";
+import { requestCheckoutOtpAction, verifyCheckoutOtpAction } from "@/app/(auth)/actions";
 import { phoneOtpVerifySchema } from "@/lib/validation/auth";
 import { fromE164 } from "@/lib/utils/phone";
 import { cartItemCount, cartTotals, useCartStore } from "@/lib/store/cart-store";
@@ -111,7 +111,7 @@ export function CheckoutView({
 
   async function sendCheckoutOtp() {
     setOtpLoading(true);
-    const result = await requestPhoneOtpAction({ phone: phoneDigits });
+    const result = await requestCheckoutOtpAction({ phone: phoneDigits });
     setOtpLoading(false);
     if (result.error) {
       toast.error(result.error);
@@ -130,7 +130,7 @@ export function CheckoutView({
       return;
     }
     setOtpLoading(true);
-    const result = await verifyPhoneOtpAction(parsed.data);
+    const result = await verifyCheckoutOtpAction(parsed.data);
     setOtpLoading(false);
     if (result.error) {
       toast.error(result.error);
