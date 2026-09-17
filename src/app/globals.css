@@ -142,7 +142,12 @@
     background-repeat: no-repeat;
     background-position: top center;
     background-size: cover;
-    background-attachment: fixed;
+    /* `fixed` (viewport-pinned, true "wallpaper" behavior) triggers real
+       compositing bugs on Android Chrome — cards and other content above
+       it were rendering as see-through. `scroll` (moves with the page) is
+       visually almost identical here since the image just sits behind
+       everything, and it doesn't have that bug. */
+    background-attachment: scroll;
   }
 }
 

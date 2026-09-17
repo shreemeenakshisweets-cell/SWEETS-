@@ -54,7 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card/70 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md"
     >
       <div className="relative aspect-square overflow-hidden bg-muted">
         <Link href={`/menu/${product.slug}`} className="relative block h-full w-full">
