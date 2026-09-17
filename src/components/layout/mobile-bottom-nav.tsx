@@ -108,6 +108,7 @@ export function MobileBottomNav({ user }: { user: AppUser | null }) {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search sweets, savouries..."
               aria-label="Search products"
+              className="text-sm"
             />
             <Button type="submit" size="icon" aria-label="Search">
               <Search className="size-4" />

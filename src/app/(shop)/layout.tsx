@@ -13,7 +13,7 @@ export default async function ShopLayout({
   const user = await getCurrentUser();
 
   return (
-    <div className="mobile-wallpaper flex min-h-full flex-1 flex-col">
+    <div className="theme-pattern-bg flex min-h-full flex-1 flex-col">
       <div className="print:hidden">
         <TopBar />
         <SiteHeader user={user} />

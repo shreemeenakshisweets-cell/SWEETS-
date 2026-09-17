@@ -131,33 +131,14 @@
 }
 
 /*
- * Sits behind the shop layout — the exact damask/fleur-de-lis swatch from
+ * The exact damask/fleur-de-lis swatch from
  * "D:\shree foods error\background images\download.jpg" (copied to
- * public/backgrounds/pattern.jpg), tiled behind every page and lightened
- * with a translucent cream wash to stay subtle, showing through wherever a
+ * public/backgrounds/pattern.jpg), tiled and lightened with a translucent
+ * cream wash to stay subtle. Used behind both the shop layout and the
+ * login/signup card, at every screen size — showing through wherever a
  * section doesn't paint its own background (page margins, empty menu-grid
- * cells), covered up by every section that does. Mobile only, matching
- * what it was asked for.
+ * cells), covered up by every section that does.
  */
-@media (max-width: 639px) {
-  .mobile-wallpaper {
-    background-color: var(--background);
-    background-image: linear-gradient(
-        color-mix(in oklch, var(--background) 55%, transparent),
-        color-mix(in oklch, var(--background) 55%, transparent)
-      ),
-      url("/backgrounds/pattern.jpg");
-    background-repeat: repeat, repeat;
-    background-size: auto, 200px auto;
-    /* `fixed` attachment caused a real Android Chrome compositing bug
-       (cards rendering see-through), so this scrolls with the page like
-       everything else. */
-    background-attachment: scroll;
-  }
-}
-
-/* Same pattern as .mobile-wallpaper, unscoped by viewport — used behind
-   the login/signup card at every size. */
 .theme-pattern-bg {
   background-color: var(--background);
   background-image: linear-gradient(
@@ -167,6 +148,10 @@
     url("/backgrounds/pattern.jpg");
   background-repeat: repeat, repeat;
   background-size: auto, 200px auto;
+  /* `fixed` attachment caused a real Android Chrome compositing bug (cards
+     rendering see-through), so this scrolls with the page like everything
+     else. */
+  background-attachment: scroll;
 }
 
 /* Top-bar offers ticker — content is duplicated by the component, so a

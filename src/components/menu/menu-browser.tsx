@@ -152,7 +152,7 @@ export function MenuBrowser({
               updateUrl({ q: e.target.value });
             }}
             placeholder="Search for sweets, savouries, gift boxes..."
-            className="pl-9"
+            className="pl-9 text-sm"
           />
         </div>
 
