@@ -43,21 +43,12 @@ const FALLBACK_SLIDE: Pick<
   imagePosition: "center",
 };
 
-const AUTO_ADVANCE_MS = 4000;
-
 export function Hero({ banners }: { banners: Banner[] }) {
   const slides = banners.length > 0 ? banners : [FALLBACK_SLIDE];
   const [index, setIndex] = React.useState(0);
-  const [paused, setPaused] = React.useState(false);
 
-  React.useEffect(() => {
-    if (paused || slides.length <= 1) return;
-    const timer = setInterval(() => {
-      setIndex((i) => (i + 1) % slides.length);
-    }, AUTO_ADVANCE_MS);
-    return () => clearInterval(timer);
-  }, [paused, slides.length]);
-
+  // No auto-advance — the hero only changes slide when someone taps an
+  // arrow or a dot, so the first thing a visitor sees stays put.
   const slide = slides[Math.min(index, slides.length - 1)];
 
   function goTo(i: number) {
@@ -65,11 +56,7 @@ export function Hero({ banners }: { banners: Banner[] }) {
   }
 
   return (
-    <section
-      className="relative isolate overflow-hidden"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
+    <section className="relative isolate overflow-hidden">
       <div className="relative h-[520px] w-full sm:h-[560px] lg:h-[600px]">
         <AnimatePresence mode="wait">
           <motion.div
@@ -92,7 +79,7 @@ export function Hero({ banners }: { banners: Banner[] }) {
                   quality={90}
                   style={{ objectPosition: slide.imagePosition }}
                   className={cn(
-                    "opacity-90",
+                    "opacity-95 saturate-[1.15] contrast-[1.05]",
                     slide.imageFit === "contain" ? "object-contain" : "object-cover"
                   )}
                 />
@@ -108,12 +95,12 @@ export function Hero({ banners }: { banners: Banner[] }) {
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-black/15 to-transparent" />
 
-            <div className="relative mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+            <div className="relative mx-auto flex h-full max-w-7xl items-center justify-center px-4 text-center sm:justify-start sm:px-6 sm:text-left lg:px-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
-                className="max-w-lg"
+                className="mx-auto flex max-w-lg flex-col items-center sm:mx-0 sm:items-start"
               >
                 {slide.eyebrow && (
                   <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-3.5 py-1.5 text-xs font-medium tracking-wide text-white uppercase backdrop-blur-sm">

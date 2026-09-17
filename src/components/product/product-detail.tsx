@@ -95,7 +95,7 @@ export function ProductDetail({
             fill
             priority
             sizes="(min-width: 1024px) 560px, 90vw"
-            className="object-cover"
+            className="object-cover saturate-[1.12] contrast-[1.04]"
           />
           <div className="absolute left-4 top-4 flex flex-col gap-1.5">
             {product.tags.map((tag) => (
@@ -165,21 +165,21 @@ export function ProductDetail({
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <div className="flex items-center gap-1 rounded-xl border border-border px-2">
+            <div className="flex items-center gap-2 rounded-xl border border-border px-2">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="flex size-10 items-center justify-center text-muted-foreground hover:text-foreground"
+                className="flex size-11 items-center justify-center text-muted-foreground hover:text-foreground"
                 aria-label="Decrease quantity"
               >
-                <Minus className="size-4" />
+                <Minus className="size-5" />
               </button>
-              <span className="min-w-8 text-center font-medium tabular-nums">{quantity}</span>
+              <span className="min-w-9 text-center text-lg font-semibold tabular-nums">{quantity}</span>
               <button
                 onClick={() => setQuantity((q) => Math.min(variant.stock, q + 1))}
-                className="flex size-10 items-center justify-center text-muted-foreground hover:text-foreground"
+                className="flex size-11 items-center justify-center text-muted-foreground hover:text-foreground"
                 aria-label="Increase quantity"
               >
-                <Plus className="size-4" />
+                <Plus className="size-5" />
               </button>
             </div>
             <Button size="lg" onClick={handleAdd} className="flex-1">

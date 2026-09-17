@@ -107,7 +107,7 @@ export function CartView() {
                   <div>
                     <Link
                       href={`/menu/${item.productSlug}`}
-                      className="font-heading text-base font-semibold text-foreground hover:text-primary"
+                      className="font-heading text-lg font-semibold text-foreground hover:text-primary"
                     >
                       {item.productName}
                     </Link>
@@ -122,27 +122,27 @@ export function CartView() {
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 rounded-full border border-border px-1.5">
+                  <div className="flex items-center gap-2 rounded-full border border-border px-1.5">
                     <button
-                      className="flex size-7 items-center justify-center text-muted-foreground hover:text-foreground"
+                      className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground"
                       onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
                       aria-label="Decrease quantity"
                     >
-                      <Minus className="size-3.5" />
+                      <Minus className="size-4" />
                     </button>
-                    <span className="min-w-5 text-center text-sm font-medium tabular-nums">
+                    <span className="min-w-6 text-center text-base font-semibold tabular-nums">
                       {item.quantity}
                     </span>
                     <button
-                      className="flex size-7 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
+                      className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
                       onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
                       disabled={item.quantity >= item.maxStock}
                       aria-label="Increase quantity"
                     >
-                      <Plus className="size-3.5" />
+                      <Plus className="size-4" />
                     </button>
                   </div>
-                  <span className="font-heading text-base font-semibold text-foreground">
+                  <span className="font-heading text-lg font-semibold text-foreground">
                     {formatCurrency(item.unitPrice * item.quantity)}
                   </span>
                 </div>

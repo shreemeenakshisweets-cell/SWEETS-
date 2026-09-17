@@ -11,7 +11,7 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
   return (
     <section className="bg-secondary/30 py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-end justify-between">
+        <div className="mb-8 flex flex-col items-center text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
           <div>
             <h2 className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">
               Customer Favourites

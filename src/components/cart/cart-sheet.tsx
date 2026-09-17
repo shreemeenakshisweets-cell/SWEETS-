@@ -96,11 +96,11 @@ export function CartSheet() {
                           <Link
                             href={`/menu/${item.productSlug}`}
                             onClick={() => setOpen(false)}
-                            className="text-sm font-medium leading-tight hover:text-primary"
+                            className="text-base font-medium leading-tight hover:text-primary"
                           >
                             {item.productName}
                           </Link>
-                          <p className="text-xs text-muted-foreground">{item.variantLabel}</p>
+                          <p className="text-sm text-muted-foreground">{item.variantLabel}</p>
                         </div>
                         <button
                           onClick={() => removeItem(item.variantId)}
@@ -111,27 +111,27 @@ export function CartSheet() {
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 rounded-full border border-border px-1">
+                        <div className="flex items-center gap-2 rounded-full border border-border px-1">
                           <button
-                            className="flex size-6 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
+                            className="flex size-8 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
                             onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
                             aria-label="Decrease quantity"
                           >
-                            <Minus className="size-3" />
+                            <Minus className="size-3.5" />
                           </button>
-                          <span className="min-w-4 text-center text-xs font-medium tabular-nums">
+                          <span className="min-w-5 text-center text-sm font-semibold tabular-nums">
                             {item.quantity}
                           </span>
                           <button
-                            className="flex size-6 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
+                            className="flex size-8 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
                             onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
                             disabled={item.quantity >= item.maxStock}
                             aria-label="Increase quantity"
                           >
-                            <Plus className="size-3" />
+                            <Plus className="size-3.5" />
                           </button>
                         </div>
-                        <span className="text-sm font-semibold tabular-nums">
+                        <span className="text-base font-semibold tabular-nums">
                           {formatCurrency(item.unitPrice * item.quantity)}
                         </span>
                       </div>

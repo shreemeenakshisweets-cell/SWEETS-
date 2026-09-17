@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { LayoutDashboard, LogOut, Menu, Phone, Search, User as UserIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, MapPin, Menu, Phone, Search, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { WhatsAppGlyph } from "@/components/icons/social";
@@ -201,6 +201,27 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
                     {link.label}
                   </Link>
                 ))}
+                <Link
+                  href="/about"
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
+                >
+                  About Us
+                </Link>
+                <Link
+                  href="/contact"
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
+                >
+                  Contact
+                </Link>
+                <div className="my-2 border-t border-border" />
+                <div className="flex flex-col gap-2 px-3 pb-1 text-xs text-muted-foreground">
+                  <span className="flex items-start gap-2">
+                    <MapPin className="mt-0.5 size-3.5 shrink-0" /> {BUSINESS.address}
+                  </span>
+                  <a href={`tel:${BUSINESS.phone.replace(/\s+/g, "")}`} className="flex items-center gap-2 hover:text-primary">
+                    <Phone className="size-3.5 shrink-0" /> {BUSINESS.phone}
+                  </a>
+                </div>
                 <div className="my-2 border-t border-border" />
                 {user ? (
                   <>
