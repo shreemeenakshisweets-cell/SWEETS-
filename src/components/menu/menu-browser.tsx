@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
+import { Grid2x2, Grid3x3, LayoutGrid, Search, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,8 +26,28 @@ const sortOptions: { value: SortKey; label: string }[] = [
   { value: "price-desc", label: "Price: High to Low" },
 ];
 
-const PAGE_SIZE_OPTIONS = [2, 4, 8, 16] as const;
-type PageSize = (typeof PAGE_SIZE_OPTIONS)[number] | "all";
+/**
+ * How many products show per row — a density toggle, not pagination.
+ * Every products list stays fully visible; picking 8 just packs more,
+ * smaller cards onto the screen at once. Class strings are written out in
+ * full (not built from the number) so Tailwind's scanner picks them up.
+ */
+const DENSITY_OPTIONS = [
+  { value: 2, label: "2 per row", icon: Grid2x2, gridClass: "grid-cols-2" },
+  {
+    value: 4,
+    label: "4 per row",
+    icon: Grid3x3,
+    gridClass: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
+  },
+  {
+    value: 8,
+    label: "8 per row",
+    icon: LayoutGrid,
+    gridClass: "grid-cols-3 sm:grid-cols-4 lg:grid-cols-8",
+  },
+] as const;
+type Density = (typeof DENSITY_OPTIONS)[number]["value"];
 
 function defaultVariantPrice(product: Product) {
   return (product.variants.find((v) => v.isDefault) ?? product.variants[0]).price;
@@ -47,8 +67,7 @@ export function MenuBrowser({
   const [query, setQuery] = React.useState(searchParams.get("q") ?? "");
   const [sort, setSort] = React.useState<SortKey>("popularity");
   const [showFilters, setShowFilters] = React.useState(false);
-  const [pageSize, setPageSize] = React.useState<PageSize>(8);
-  const [page, setPage] = React.useState(1);
+  const [density, setDensity] = React.useState<Density>(4);
 
   // Syncs local filter state from the URL (external system) so browser
   // back/forward and links elsewhere that set ?category=/?q= are reflected —
@@ -110,18 +129,7 @@ export function MenuBrowser({
     return sorted;
   }, [products, category, query, sort]);
 
-  // Jump back to page 1 whenever the result set or page size changes, so
-  // you're never stranded on a now-empty trailing page.
-  /* eslint-disable react-hooks/set-state-in-effect */
-  React.useEffect(() => {
-    setPage(1);
-  }, [category, query, sort, pageSize]);
-  /* eslint-enable react-hooks/set-state-in-effect */
-
-  const pageCount =
-    pageSize === "all" ? 1 : Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated =
-    pageSize === "all" ? filtered : filtered.slice((page - 1) * pageSize, page * pageSize);
+  const activeDensity = DENSITY_OPTIONS.find((d) => d.value === density) ?? DENSITY_OPTIONS[1];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -161,22 +169,26 @@ export function MenuBrowser({
               ))}
             </SelectContent>
           </Select>
-          <Select
-            value={String(pageSize)}
-            onValueChange={(v) => setPageSize(v === "all" ? "all" : (Number(v) as PageSize))}
-          >
-            <SelectTrigger className="w-full sm:w-36">
-              <SelectValue placeholder="Show" />
-            </SelectTrigger>
-            <SelectContent>
-              {PAGE_SIZE_OPTIONS.map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  Show {n}
-                </SelectItem>
-              ))}
-              <SelectItem value="all">Show all</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-1 rounded-lg border border-border p-1">
+            {DENSITY_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setDensity(opt.value)}
+                aria-label={opt.label}
+                aria-pressed={density === opt.value}
+                title={opt.label}
+                className={cn(
+                  "flex size-8 items-center justify-center rounded-md transition-colors",
+                  density === opt.value
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <opt.icon className="size-4" />
+              </button>
+            ))}
+          </div>
           <Button
             variant="outline"
             size="icon"
@@ -247,46 +259,18 @@ export function MenuBrowser({
           </Button>
         </div>
       ) : (
-        <>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {paginated.map((product, i) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: Math.min(i, 8) * 0.04 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </div>
-
-          {pageCount > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-3">
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="size-4" />
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Page {page} of {pageCount}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page >= pageCount}
-                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                aria-label="Next page"
-              >
-                <ChevronRight className="size-4" />
-              </Button>
-            </div>
-          )}
-        </>
+        <div className={cn("grid gap-4", activeDensity.gridClass)}>
+          {filtered.map((product, i) => (
+            <motion.div
+              key={product.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: Math.min(i, 8) * 0.04 }}
+            >
+              <ProductCard product={product} />
+            </motion.div>
+          ))}
+        </div>
       )}
     </div>
   );
