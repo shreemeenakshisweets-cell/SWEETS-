@@ -1,4 +1,5 @@
 import { Hero } from "@/components/home/hero";
+import { LegacyBanner } from "@/components/home/legacy-banner";
 import { TrustBadges } from "@/components/home/trust-badges";
 import { BrandStory } from "@/components/home/brand-story";
 import { OffersStrip } from "@/components/shared/offers-strip";
@@ -32,6 +33,7 @@ export default async function HomePage() {
           standalone Promotions section (the same two offers again) was
           dropped to avoid repeating them. */}
       <Hero banners={banners} />
+      <LegacyBanner />
       <TrustBadges />
       <BrandStory />
       <OffersStrip className="rounded-none border-x-0 border-t-0" />
