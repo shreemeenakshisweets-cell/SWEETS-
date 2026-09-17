@@ -129,3 +129,19 @@
     @apply font-sans;
   }
 }
+
+/*
+ * Sits behind the shop layout like a phone home-screen wallpaper — fixed to
+ * the viewport, showing through wherever a section doesn't paint its own
+ * background (page margins, empty menu-grid cells), covered up by every
+ * section that does. Mobile only, matching what it was asked for.
+ */
+@media (max-width: 639px) {
+  .mobile-wallpaper {
+    background-image: url("/backgrounds/auth-mobile.jpg");
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: cover;
+    background-attachment: fixed;
+  }
+}
