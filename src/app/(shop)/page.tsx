@@ -35,10 +35,10 @@ export default async function HomePage() {
       <Hero banners={banners} />
       <LegacyBanner />
       <TrustBadges />
-      <BrandStory />
       <OffersStrip className="rounded-none border-x-0 border-t-0" />
       <CategoryGrid categories={categories} />
       <FeaturedProducts products={featured} />
+      <BrandStory />
       {testimonials.length >= MIN_TESTIMONIALS_TO_SHOW && (
         <Testimonials testimonials={testimonials} />
       )}
