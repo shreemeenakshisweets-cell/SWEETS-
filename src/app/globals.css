@@ -131,17 +131,17 @@
 }
 
 /*
- * Sits behind the shop layout — a brand-colored 8-petal lotus medallion
- * (rangoli/temple-ceiling motif, not a photo) built from the theme's own
- * --primary gold, tiled behind every page, showing through wherever a
- * section doesn't paint its own background (page margins, empty menu-grid
- * cells), covered up by every section that does. Mobile only, matching
- * what it was asked for.
+ * Sits behind the shop layout — a brand-colored peacock-feather motif
+ * (iconic South Indian/temple textile emblem, not a photo) built from the
+ * theme's own --primary gold, tiled behind every page, showing through
+ * wherever a section doesn't paint its own background (page margins, empty
+ * menu-grid cells), covered up by every section that does. Mobile only,
+ * matching what it was asked for.
  */
 @media (max-width: 639px) {
   .mobile-wallpaper {
     background-color: var(--background);
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='72'%20height='72'%20viewBox='0%200%2072%2072'%3E%3Cg%20transform='translate(36,36)'%20fill='none'%20stroke='%237a6118'%20stroke-width='1'%20stroke-opacity='0.22'%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(45)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(90)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(135)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(180)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(225)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(270)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(315)'/%3E%3Ccircle%20r='2.5'%20fill='%237a6118'%20fill-opacity='0.26'/%3E%3Ccircle%20r='16'%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.12'%20stroke-width='0.75'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='68'%20height='76'%20viewBox='0%200%2068%2076'%3E%3Cg%20transform='translate(34,38)'%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.26'%3E%3Cpath%20d='M0,-20%20C9,-13%209,1%200,15%20C-9,1%20-9,-13%200,-20%20Z'%20stroke-width='1'/%3E%3Cellipse%20cx='0'%20cy='-5'%20rx='4.5'%20ry='8'%20stroke-width='0.75'/%3E%3Ccircle%20cx='0'%20cy='-5'%20r='1.6'%20fill='%237a6118'%20fill-opacity='0.32'%20stroke='none'/%3E%3Cline%20x1='0'%20y1='15'%20x2='0'%20y2='23'%20stroke-width='0.75'%20stroke-opacity='0.2'/%3E%3C/g%3E%3C/svg%3E");
     background-repeat: repeat;
     /* Plain tiled pattern, not a photo — `fixed` attachment caused a real
        Android Chrome compositing bug (cards rendering see-through), so this
@@ -150,11 +150,11 @@
   }
 }
 
-/* Same lotus-medallion pattern as .mobile-wallpaper, unscoped by viewport —
+/* Same peacock-feather pattern as .mobile-wallpaper, unscoped by viewport —
    used behind the login/signup card at every size. */
 .theme-pattern-bg {
   background-color: var(--background);
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='72'%20height='72'%20viewBox='0%200%2072%2072'%3E%3Cg%20transform='translate(36,36)'%20fill='none'%20stroke='%237a6118'%20stroke-width='1'%20stroke-opacity='0.22'%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(45)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(90)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(135)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(180)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(225)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(270)'/%3E%3Cellipse%20cx='0'%20cy='-10'%20rx='4'%20ry='10'%20transform='rotate(315)'/%3E%3Ccircle%20r='2.5'%20fill='%237a6118'%20fill-opacity='0.26'/%3E%3Ccircle%20r='16'%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.12'%20stroke-width='0.75'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='68'%20height='76'%20viewBox='0%200%2068%2076'%3E%3Cg%20transform='translate(34,38)'%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.26'%3E%3Cpath%20d='M0,-20%20C9,-13%209,1%200,15%20C-9,1%20-9,-13%200,-20%20Z'%20stroke-width='1'/%3E%3Cellipse%20cx='0'%20cy='-5'%20rx='4.5'%20ry='8'%20stroke-width='0.75'/%3E%3Ccircle%20cx='0'%20cy='-5'%20r='1.6'%20fill='%237a6118'%20fill-opacity='0.32'%20stroke='none'/%3E%3Cline%20x1='0'%20y1='15'%20x2='0'%20y2='23'%20stroke-width='0.75'%20stroke-opacity='0.2'/%3E%3C/g%3E%3C/svg%3E");
   background-repeat: repeat;
 }
 
