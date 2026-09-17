@@ -131,17 +131,18 @@
 }
 
 /*
- * Sits behind the shop layout — a brand-colored peacock-feather motif
- * (iconic South Indian/temple textile emblem, not a photo) built from the
- * theme's own --primary gold, tiled behind every page, showing through
- * wherever a section doesn't paint its own background (page margins, empty
- * menu-grid cells), covered up by every section that does. Mobile only,
- * matching what it was asked for.
+ * Sits behind the shop layout — a brand-colored damask/fleur-de-lis diaper
+ * pattern (recreated from the reference swatch in
+ * "D:\shree foods error\background images\download.jpg", not a photo)
+ * built from the theme's own --primary gold, tiled behind every page,
+ * showing through wherever a section doesn't paint its own background
+ * (page margins, empty menu-grid cells), covered up by every section that
+ * does. Mobile only, matching what it was asked for.
  */
 @media (max-width: 639px) {
   .mobile-wallpaper {
     background-color: var(--background);
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='68'%20height='76'%20viewBox='0%200%2068%2076'%3E%3Cg%20transform='translate(34,38)'%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.26'%3E%3Cpath%20d='M0,-20%20C9,-13%209,1%200,15%20C-9,1%20-9,-13%200,-20%20Z'%20stroke-width='1'/%3E%3Cellipse%20cx='0'%20cy='-5'%20rx='4.5'%20ry='8'%20stroke-width='0.75'/%3E%3Ccircle%20cx='0'%20cy='-5'%20r='1.6'%20fill='%237a6118'%20fill-opacity='0.32'%20stroke='none'/%3E%3Cline%20x1='0'%20y1='15'%20x2='0'%20y2='23'%20stroke-width='0.75'%20stroke-opacity='0.2'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='110'%20viewBox='0%200%2090%20110'%3E%3Cg%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.28'%20stroke-width='1'%3E%3Cpath%20d='M45,0%20C55,10%2058,20%2045,28%20C32,20%2035,10%2045,0%20Z'/%3E%3Cpath%20d='M45,110%20C55,100%2058,90%2045,82%20C32,90%2035,100%2045,110%20Z'/%3E%3Cpath%20d='M0,55%20C10,45%2020,42%2028,55%20C20,68%2010,65%200,55%20Z'/%3E%3Cpath%20d='M90,55%20C80,45%2070,42%2062,55%20C70,68%2080,65%2090,55%20Z'/%3E%3C/g%3E%3Cg%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.32'%20stroke-width='1.1'%3E%3Cpath%20d='M45,42%20C40,47%2040,53%2045,56%20C50,53%2050,47%2045,42%20Z'/%3E%3Cpath%20d='M36,48%20C27,44%2024,52%2031,57%20C36,60%2039,53%2036,48%20Z'/%3E%3Cpath%20d='M54,48%20C63,44%2066,52%2059,57%20C54,60%2051,53%2054,48%20Z'/%3E%3Cline%20x1='34'%20y1='58'%20x2='56'%20y2='58'%20stroke-width='1'/%3E%3Ccircle%20cx='45'%20cy='62'%20r='1.6'%20fill='%237a6118'%20fill-opacity='0.34'%20stroke='none'/%3E%3C/g%3E%3Cg%20fill='%237a6118'%20fill-opacity='0.3'%3E%3Crect%20x='42'%20y='-3'%20width='6'%20height='6'%20transform='rotate(45%2045%200)'/%3E%3Crect%20x='-3'%20y='52'%20width='6'%20height='6'%20transform='rotate(45%200%2055)'/%3E%3C/g%3E%3C/svg%3E");
     background-repeat: repeat;
     /* Plain tiled pattern, not a photo — `fixed` attachment caused a real
        Android Chrome compositing bug (cards rendering see-through), so this
@@ -150,11 +151,11 @@
   }
 }
 
-/* Same peacock-feather pattern as .mobile-wallpaper, unscoped by viewport —
-   used behind the login/signup card at every size. */
+/* Same damask pattern as .mobile-wallpaper, unscoped by viewport — used
+   behind the login/signup card at every size. */
 .theme-pattern-bg {
   background-color: var(--background);
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='68'%20height='76'%20viewBox='0%200%2068%2076'%3E%3Cg%20transform='translate(34,38)'%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.26'%3E%3Cpath%20d='M0,-20%20C9,-13%209,1%200,15%20C-9,1%20-9,-13%200,-20%20Z'%20stroke-width='1'/%3E%3Cellipse%20cx='0'%20cy='-5'%20rx='4.5'%20ry='8'%20stroke-width='0.75'/%3E%3Ccircle%20cx='0'%20cy='-5'%20r='1.6'%20fill='%237a6118'%20fill-opacity='0.32'%20stroke='none'/%3E%3Cline%20x1='0'%20y1='15'%20x2='0'%20y2='23'%20stroke-width='0.75'%20stroke-opacity='0.2'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='110'%20viewBox='0%200%2090%20110'%3E%3Cg%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.28'%20stroke-width='1'%3E%3Cpath%20d='M45,0%20C55,10%2058,20%2045,28%20C32,20%2035,10%2045,0%20Z'/%3E%3Cpath%20d='M45,110%20C55,100%2058,90%2045,82%20C32,90%2035,100%2045,110%20Z'/%3E%3Cpath%20d='M0,55%20C10,45%2020,42%2028,55%20C20,68%2010,65%200,55%20Z'/%3E%3Cpath%20d='M90,55%20C80,45%2070,42%2062,55%20C70,68%2080,65%2090,55%20Z'/%3E%3C/g%3E%3Cg%20fill='none'%20stroke='%237a6118'%20stroke-opacity='0.32'%20stroke-width='1.1'%3E%3Cpath%20d='M45,42%20C40,47%2040,53%2045,56%20C50,53%2050,47%2045,42%20Z'/%3E%3Cpath%20d='M36,48%20C27,44%2024,52%2031,57%20C36,60%2039,53%2036,48%20Z'/%3E%3Cpath%20d='M54,48%20C63,44%2066,52%2059,57%20C54,60%2051,53%2054,48%20Z'/%3E%3Cline%20x1='34'%20y1='58'%20x2='56'%20y2='58'%20stroke-width='1'/%3E%3Ccircle%20cx='45'%20cy='62'%20r='1.6'%20fill='%237a6118'%20fill-opacity='0.34'%20stroke='none'/%3E%3C/g%3E%3Cg%20fill='%237a6118'%20fill-opacity='0.3'%3E%3Crect%20x='42'%20y='-3'%20width='6'%20height='6'%20transform='rotate(45%2045%200)'/%3E%3Crect%20x='-3'%20y='52'%20width='6'%20height='6'%20transform='rotate(45%200%2055)'/%3E%3C/g%3E%3C/svg%3E");
   background-repeat: repeat;
 }
 
