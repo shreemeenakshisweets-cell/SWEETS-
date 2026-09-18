@@ -30,7 +30,7 @@ export function Logo({
         priority
         className={cn(
           "w-auto transition-transform group-hover:scale-105",
-          hideTextOnMobile ? "h-16 sm:h-12" : "h-11 sm:h-12"
+          hideTextOnMobile ? "h-13 sm:h-12" : "h-11 sm:h-12"
         )}
       />
       {/* Compact single-line caption shown only in place of the full text

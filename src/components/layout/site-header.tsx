@@ -68,7 +68,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
           : "border-transparent bg-background"
       )}
     >
-      <div className="relative mx-auto flex h-20 max-w-7xl items-center gap-4 px-4 sm:h-16 sm:px-6 lg:px-8">
+      <div className="relative mx-auto flex h-18 max-w-7xl items-center gap-4 px-4 sm:h-16 sm:px-6 lg:px-8">
         <Sheet>
           <SheetTrigger
             render={
