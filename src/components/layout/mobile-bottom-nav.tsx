@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Heart, LayoutGrid, Search, ShoppingBag, User as UserIcon } from "lucide-react";
+import { LayoutGrid, Search, ShoppingBag, User as UserIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -46,7 +46,7 @@ export function MobileBottomNav({ user }: { user: AppUser | null }) {
   return (
     <>
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 backdrop-blur-md lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 backdrop-blur-md lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <Link
@@ -67,16 +67,6 @@ export function MobileBottomNav({ user }: { user: AppUser | null }) {
           <Search className="size-5" />
           Search
         </button>
-        <Link
-          href={user ? "/account/wishlist" : "/login"}
-          className={cn(
-            "flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors",
-            isActive("/account/wishlist") ? "text-primary" : "text-muted-foreground"
-          )}
-        >
-          <Heart className="size-5" />
-          Wishlist
-        </Link>
         <Link
           href={user ? "/account" : "/login"}
           className={cn(

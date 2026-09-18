@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { LayoutDashboard, LogOut, MapPin, Menu, Phone, Search, User as UserIcon } from "lucide-react";
+import { Heart, LayoutDashboard, LogOut, MapPin, Menu, Phone, Search, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BUSINESS } from "@/lib/business";
@@ -191,6 +191,16 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
         </form>
 
         <div className="ml-auto flex items-center gap-1 md:ml-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            render={<Link href={user ? "/account/wishlist" : "/login"} />}
+            nativeButton={false}
+            aria-label="Wishlist"
+            title="Wishlist"
+          >
+            <Heart className="size-4" />
+          </Button>
           <CartSheet />
 
           {user ? (
