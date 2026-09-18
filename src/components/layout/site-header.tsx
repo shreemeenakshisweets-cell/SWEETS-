@@ -69,8 +69,10 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
           : "border-transparent bg-background"
       )}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        <Logo />
+      <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:left-auto lg:translate-x-0">
+          <Logo />
+        </div>
 
         <nav className="ml-4 hidden items-center gap-1 lg:flex">
           {navLinks.map((link) => {
@@ -108,16 +110,6 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
         </form>
 
         <div className="ml-auto flex items-center gap-1 md:ml-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            render={<a href={`tel:${BUSINESS.phone.replace(/\s+/g, "")}`} />}
-            nativeButton={false}
-            aria-label="Call us"
-            title="Call us"
-          >
-            <Phone className="size-4" />
-          </Button>
           <Button
             variant="ghost"
             size="icon"
