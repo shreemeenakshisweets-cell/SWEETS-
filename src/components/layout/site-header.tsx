@@ -71,7 +71,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
     >
       <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
         <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:left-auto lg:translate-x-0">
-          <Logo />
+          <Logo hideTextOnMobile />
         </div>
 
         <nav className="ml-4 hidden items-center gap-1 lg:flex">
