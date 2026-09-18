@@ -15,7 +15,11 @@ export function Logo({
   return (
     <Link
       href="/"
-      className={cn("group flex shrink-0 select-none items-center gap-2.5", className)}
+      className={cn(
+        "group flex shrink-0 select-none items-center",
+        hideTextOnMobile ? "flex-col gap-0.5 sm:flex-row sm:gap-2.5" : "flex-row gap-2.5",
+        className
+      )}
       aria-label="Shree Meenakshi Sweets & Savouries — home"
     >
       <Image
@@ -24,8 +28,19 @@ export function Logo({
         width={1536}
         height={1024}
         priority
-        className="h-11 w-auto transition-transform group-hover:scale-105 sm:h-12"
+        className={cn(
+          "w-auto transition-transform group-hover:scale-105",
+          hideTextOnMobile ? "h-16 sm:h-12" : "h-11 sm:h-12"
+        )}
       />
+      {/* Compact single-line caption shown only in place of the full text
+          stack below, on the smallest screens (the emblem's own engraved
+          text is illegible at that size). */}
+      {hideTextOnMobile && (
+        <span className="text-[0.6rem] font-bold tracking-wide text-primary sm:hidden">
+          Sweets &amp; Savouries
+        </span>
+      )}
       <span className={cn("flex-col leading-tight", hideTextOnMobile ? "hidden sm:flex" : "flex")}>
         <span className="font-heading text-[0.65rem] font-medium uppercase tracking-[0.28em] text-muted-foreground">
           Shree

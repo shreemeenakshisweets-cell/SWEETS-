@@ -7,7 +7,6 @@ import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { LayoutDashboard, LogOut, MapPin, Menu, Phone, Search, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { WhatsAppGlyph } from "@/components/icons/social";
 import { BUSINESS } from "@/lib/business";
 import {
   DropdownMenu,
@@ -69,7 +68,89 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
           : "border-transparent bg-background"
       )}
     >
-      <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto flex h-20 max-w-7xl items-center gap-4 px-4 sm:h-16 sm:px-6 lg:px-8">
+        <Sheet>
+          <SheetTrigger
+            render={
+              <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu" />
+            }
+          >
+            <Menu className="size-5" />
+          </SheetTrigger>
+          <SheetContent side="left" className="w-72">
+            <SheetTitle className="px-4 pt-4">
+              <Logo />
+            </SheetTitle>
+            <nav className="flex flex-col gap-1 p-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <Link
+                href="/about"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
+              >
+                About Us
+              </Link>
+              <Link
+                href="/contact"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
+              >
+                Contact
+              </Link>
+              <div className="my-2 border-t border-border" />
+              <div className="flex flex-col gap-2 px-3 pb-1 text-xs text-muted-foreground">
+                <span className="flex items-start gap-2">
+                  <MapPin className="mt-0.5 size-3.5 shrink-0" /> {BUSINESS.address}
+                </span>
+                <a href={`tel:${BUSINESS.phone.replace(/\s+/g, "")}`} className="flex items-center gap-2 hover:text-primary">
+                  <Phone className="size-3.5 shrink-0" /> {BUSINESS.phone}
+                </a>
+              </div>
+              <div className="my-2 border-t border-border" />
+              {user ? (
+                <>
+                  <Link
+                    href="/account"
+                    className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
+                  >
+                    My Account
+                  </Link>
+                  {user.role === "ADMIN" && (
+                    <Link
+                      href="/admin"
+                      className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  <form action={signOutAction}>
+                    <button
+                      type="submit"
+                      className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
+                    >
+                      Sign out
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <Button
+                  render={<Link href="/login" />}
+                  nativeButton={false}
+                  className="w-full"
+                >
+                  Sign in
+                </Button>
+              )}
+            </nav>
+          </SheetContent>
+        </Sheet>
+
         <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:left-auto lg:translate-x-0">
           <Logo hideTextOnMobile />
         </div>
@@ -110,22 +191,6 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
         </form>
 
         <div className="ml-auto flex items-center gap-1 md:ml-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            render={
-              <a
-                href={`https://wa.me/${BUSINESS.whatsapp}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-            }
-            nativeButton={false}
-            aria-label="Chat on WhatsApp"
-            title="Chat on WhatsApp"
-          >
-            <WhatsAppGlyph className="size-4" />
-          </Button>
           <CartSheet />
 
           {user ? (
@@ -170,88 +235,6 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
               Sign in
             </Button>
           )}
-
-          <Sheet>
-            <SheetTrigger
-              render={
-                <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu" />
-              }
-            >
-              <Menu className="size-5" />
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72">
-              <SheetTitle className="px-4 pt-4">
-                <Logo />
-              </SheetTitle>
-              <nav className="flex flex-col gap-1 p-4">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <Link
-                  href="/about"
-                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
-                >
-                  About Us
-                </Link>
-                <Link
-                  href="/contact"
-                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
-                >
-                  Contact
-                </Link>
-                <div className="my-2 border-t border-border" />
-                <div className="flex flex-col gap-2 px-3 pb-1 text-xs text-muted-foreground">
-                  <span className="flex items-start gap-2">
-                    <MapPin className="mt-0.5 size-3.5 shrink-0" /> {BUSINESS.address}
-                  </span>
-                  <a href={`tel:${BUSINESS.phone.replace(/\s+/g, "")}`} className="flex items-center gap-2 hover:text-primary">
-                    <Phone className="size-3.5 shrink-0" /> {BUSINESS.phone}
-                  </a>
-                </div>
-                <div className="my-2 border-t border-border" />
-                {user ? (
-                  <>
-                    <Link
-                      href="/account"
-                      className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
-                    >
-                      My Account
-                    </Link>
-                    {user.role === "ADMIN" && (
-                      <Link
-                        href="/admin"
-                        className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
-                      >
-                        Admin Dashboard
-                      </Link>
-                    )}
-                    <form action={signOutAction}>
-                      <button
-                        type="submit"
-                        className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
-                      >
-                        Sign out
-                      </button>
-                    </form>
-                  </>
-                ) : (
-                  <Button
-                    render={<Link href="/login" />}
-                    nativeButton={false}
-                    className="w-full"
-                  >
-                    Sign in
-                  </Button>
-                )}
-              </nav>
-            </SheetContent>
-          </Sheet>
         </div>
       </div>
     </motion.header>
