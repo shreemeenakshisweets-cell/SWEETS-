@@ -12,6 +12,7 @@ import {
   BarChart3,
   ExternalLink,
   GalleryHorizontal,
+  Image as ImageIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/layout/logo";
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/banners", label: "Banners", icon: GalleryHorizontal },
+  { href: "/admin/homepage-content", label: "Homepage Content", icon: ImageIcon },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/coupons", label: "Coupons", icon: TicketPercent },

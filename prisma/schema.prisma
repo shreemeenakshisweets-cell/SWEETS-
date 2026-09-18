@@ -258,6 +258,18 @@ model CouponRedemption {
   @@map("coupon_redemptions")
 }
 
+// A single row (fixed id "homepage") holding one-off homepage content that
+// doesn't warrant its own list/CRUD like Banners or Products — currently
+// just the brand-story artwork, admin-editable at /admin/homepage-content.
+model HomepageContent {
+  id                     String   @id
+  brandStoryImageUrl     String?
+  brandStoryImageEnabled Boolean  @default(true)
+  updatedAt              DateTime @updatedAt
+
+  @@map("homepage_content")
+}
+
 model Banner {
   id            String   @id @default(uuid()) @db.Uuid
   eyebrow       String?

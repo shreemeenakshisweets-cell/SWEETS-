@@ -1,10 +1,26 @@
 import Image from "next/image";
 import { BUSINESS } from "@/lib/business";
 
-export function BrandStory() {
+const DEFAULT_IMAGE_URL = "/backgrounds/dancer-motif.png";
+
+export function BrandStory({
+  imageUrl,
+  imageEnabled = true,
+}: {
+  /** Admin-uploaded override from /admin/homepage-content; falls back to
+   * the artwork that ships with the site when unset. */
+  imageUrl?: string;
+  imageEnabled?: boolean;
+}) {
   return (
     <section className="bg-secondary/40">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 text-center sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:text-left">
+      <div
+        className={
+          imageEnabled
+            ? "mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 text-center sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:text-left"
+            : "mx-auto max-w-3xl px-4 py-16 text-center sm:px-6 lg:px-8"
+        }
+      >
         <div>
           <span className="text-sm font-semibold tracking-wide text-primary uppercase">
             Welcome to {BUSINESS.tradeName}
@@ -35,19 +51,22 @@ export function BrandStory() {
             to-edge) so the watercolor's own ragged border reads as bleeding
             into the page instead of looking clipped by the frame, and a
             drop-shadow (which follows the alpha silhouette, not a hard box)
-            gives the figure some lift off the background. */}
-        <div className="relative mx-auto w-full max-w-[220px] py-6 sm:max-w-xs lg:max-w-md">
-          <div className="relative aspect-[736/916] w-[85%] mx-auto">
-            <Image
-              src="/backgrounds/dancer-motif.png"
-              alt="Traditional South Indian classical dancer, a nod to the heritage behind our recipes"
-              fill
-              sizes="(min-width: 1024px) 340px, (min-width: 640px) 260px, 190px"
-              className="object-contain drop-shadow-[0_30px_25px_rgba(74,44,20,0.25)]"
-            />
+            gives the figure some lift off the background. Admin-editable at
+            /admin/homepage-content — imageUrl/imageEnabled come from there. */}
+        {imageEnabled && (
+          <div className="relative mx-auto w-full max-w-[220px] py-6 sm:max-w-xs lg:max-w-md">
+            <div className="relative aspect-[736/916] w-[85%] mx-auto">
+              <Image
+                src={imageUrl || DEFAULT_IMAGE_URL}
+                alt="Traditional South Indian classical dancer, a nod to the heritage behind our recipes"
+                fill
+                sizes="(min-width: 1024px) 340px, (min-width: 640px) 260px, 190px"
+                className="object-contain drop-shadow-[0_30px_25px_rgba(74,44,20,0.25)]"
+              />
+            </div>
+            <div className="mx-auto h-3 w-2/5 rounded-[50%] bg-black/15 blur-md" />
           </div>
-          <div className="mx-auto h-3 w-2/5 rounded-[50%] bg-black/15 blur-md" />
-        </div>
+        )}
       </div>
     </section>
   );

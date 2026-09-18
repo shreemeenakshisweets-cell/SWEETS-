@@ -86,6 +86,12 @@ export const bannerInputSchema = z.object({
 });
 export type BannerInput = z.input<typeof bannerInputSchema>;
 
+export const homepageContentInputSchema = z.object({
+  brandStoryImageUrl: z.string().trim().url().optional().or(z.literal("")),
+  brandStoryImageEnabled: z.boolean(),
+});
+export type HomepageContentInput = z.input<typeof homepageContentInputSchema>;
+
 export const orderStatusUpdateSchema = z.object({
   orderId: z.string().uuid(),
   status: z.enum([

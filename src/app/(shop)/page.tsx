@@ -12,6 +12,7 @@ import {
   getCategories,
   getFeaturedProducts,
   getFeaturedTestimonials,
+  getHomepageContent,
 } from "@/lib/data/storefront";
 
 // Below this many real reviews, the section reads as sparse rather than
@@ -19,11 +20,12 @@ import {
 const MIN_TESTIMONIALS_TO_SHOW = 3;
 
 export default async function HomePage() {
-  const [categories, featured, banners, testimonials] = await Promise.all([
+  const [categories, featured, banners, testimonials, homepageContent] = await Promise.all([
     getCategories(),
     getFeaturedProducts(),
     getActiveBanners(),
     getFeaturedTestimonials(),
+    getHomepageContent(),
   ]);
 
   return (
@@ -38,7 +40,10 @@ export default async function HomePage() {
       <OffersStrip className="rounded-none border-x-0 border-t-0" />
       <CategoryGrid categories={categories} />
       <FeaturedProducts products={featured} />
-      <BrandStory />
+      <BrandStory
+        imageUrl={homepageContent?.brandStoryImageUrl ?? undefined}
+        imageEnabled={homepageContent?.brandStoryImageEnabled ?? true}
+      />
       {testimonials.length >= MIN_TESTIMONIALS_TO_SHOW && (
         <Testimonials testimonials={testimonials} />
       )}

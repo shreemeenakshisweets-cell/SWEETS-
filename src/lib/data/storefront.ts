@@ -117,6 +117,30 @@ export async function getActiveBanners() {
   });
 }
 
+/** One-off homepage content (currently just the brand-story artwork). */
+export async function getHomepageContent() {
+  return prisma.homepageContent.findUnique({ where: { id: "homepage" } });
+}
+
+/** Product IDs the given user has wishlisted — cheap set for card hearts. */
+export async function getWishlistProductIds(userId: string): Promise<string[]> {
+  const items = await prisma.wishlistItem.findMany({
+    where: { userId },
+    select: { productId: true },
+  });
+  return items.map((i) => i.productId);
+}
+
+/** Full product details for a user's wishlist, newest-saved first. */
+export async function getWishlistProducts(userId: string): Promise<Product[]> {
+  const items = await prisma.wishlistItem.findMany({
+    where: { userId },
+    include: { product: { include: productInclude } },
+    orderBy: { createdAt: "desc" },
+  });
+  return items.map((i) => mapProduct(i.product));
+}
+
 /** All active product slugs, for generateStaticParams. */
 export async function getAllProductSlugs(): Promise<string[]> {
   const products = await prisma.product.findMany({
