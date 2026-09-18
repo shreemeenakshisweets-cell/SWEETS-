@@ -108,13 +108,22 @@ export async function requestPhoneOtpAction(input: unknown): Promise<ActionResul
 }
 
 /**
- * On a correct MSG91 code: find-or-create the Supabase auth user for this
- * phone (via the service-role Admin API, since there's no native
- * phone-provider flow to lean on), give them a fresh single-use random
- * password nobody ever sees, and immediately sign in with it through the
- * request-scoped client so a normal Supabase session/cookie gets issued
- * the standard way. A phone already verified on file finds the same
- * account (updates its password) rather than creating a duplicate.
+ * On a correct MSG91 code, bridges the verified phone into a real Supabase
+ * session (via the service-role Admin API, since there's no native
+ * phone-provider flow to lean on) — how depends on what's already on the
+ * matching account:
+ *
+ * - Phone-only account (no email — e.g. first-ever sign-in with this
+ *   number): give it a fresh single-use random password nobody ever sees,
+ *   then sign in with it through the request-scoped client. Safe to
+ *   overwrite on every login since nothing else depends on that password.
+ * - Account with a real email (e.g. this phone was later linked to an
+ *   existing email/password account under Account Settings): bridge in via
+ *   an admin-generated magic-link token instead. This NEVER touches
+ *   `password` — a previous bug used the same password-overwrite path for
+ *   every account regardless, which silently broke email/password login
+ *   for anyone who ever used "Continue with Phone Number" on an account
+ *   that also signs in with email.
  */
 export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult> {
   const parsed = phoneOtpVerifySchema.safeParse(input);
@@ -124,27 +133,42 @@ export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult
   if (!verified.success) return { error: verified.error };
 
   const phone = normalizePhone(parsed.data.phone);
-  const tempPassword = randomBytes(24).toString("hex");
   const admin = createAdminClient();
-
+  const supabase = await createClient();
   const existing = await prisma.user.findUnique({ where: { phone } });
-  if (existing) {
-    const { error } = await admin.auth.admin.updateUserById(existing.id, {
-      password: tempPassword,
+
+  if (existing?.email) {
+    const { data, error: linkError } = await admin.auth.admin.generateLink({
+      type: "magiclink",
+      email: existing.email,
+    });
+    if (linkError || !data) return { error: linkError?.message ?? "Could not sign in." };
+
+    const { error } = await supabase.auth.verifyOtp({
+      email: existing.email,
+      token_hash: data.properties.hashed_token,
+      type: "magiclink",
     });
     if (error) return { error: error.message };
   } else {
-    const { error } = await admin.auth.admin.createUser({
-      phone,
-      phone_confirm: true,
-      password: tempPassword,
-    });
+    const tempPassword = randomBytes(24).toString("hex");
+    if (existing) {
+      const { error } = await admin.auth.admin.updateUserById(existing.id, {
+        password: tempPassword,
+      });
+      if (error) return { error: error.message };
+    } else {
+      const { error } = await admin.auth.admin.createUser({
+        phone,
+        phone_confirm: true,
+        password: tempPassword,
+      });
+      if (error) return { error: error.message };
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ phone, password: tempPassword });
     if (error) return { error: error.message };
   }
-
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ phone, password: tempPassword });
-  if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
   return { success: true };
@@ -243,6 +267,14 @@ export async function updatePasswordAction(input: unknown): Promise<ActionResult
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) return { error: error.message };
+
+  // The old password's hash is already gone the moment updateUser() above
+  // succeeds — Postgres has one encrypted_password column, overwritten in
+  // place, nothing "old" lingers. What DOES survive a password change is
+  // any session/JWT issued before it (tokens are stateless and keep working
+  // until they expire on their own) — sign those out everywhere else so a
+  // reset actually locks out anyone still signed in with the old password.
+  await supabase.auth.signOut({ scope: "others" });
 
   revalidatePath("/", "layout");
   return { success: true };

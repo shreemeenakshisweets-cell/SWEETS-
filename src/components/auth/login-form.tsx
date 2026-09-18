@@ -18,6 +18,16 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/account";
 
+  React.useEffect(() => {
+    if (searchParams.get("error") === "auth-callback-failed") {
+      toast.error(
+        "That link didn't work — it may have expired, been used already, or been opened in a different browser than the one you requested it from. Please request a new one."
+      );
+      router.replace("/login", { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const {
     register,
     handleSubmit,

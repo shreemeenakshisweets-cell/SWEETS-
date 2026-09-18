@@ -16,6 +16,10 @@ export async function GET(request: NextRequest) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    // Logged (not shown to the user) — most commonly a one-time code that
+    // was already used, expired, or opened in a different browser/device
+    // than the one that requested it (the PKCE verifier is browser-local).
+    console.error("Auth callback code exchange failed:", error.message);
   }
 
   return NextResponse.redirect(`${origin}/login?error=auth-callback-failed`);
