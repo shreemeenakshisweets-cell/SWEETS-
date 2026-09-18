@@ -19,14 +19,14 @@ const links = [
   {
     icon: MapPin,
     label: "Saved Addresses",
-    description: "Managed inline during checkout for now",
-    href: null,
+    description: "Manage your delivery addresses",
+    href: "/account/addresses",
   },
   {
     icon: Heart,
     label: "Wishlist",
     description: "Products you've saved for later",
-    href: null,
+    href: "/account/wishlist",
   },
 ];
 
@@ -91,8 +91,7 @@ export default async function AccountPage() {
       <div className="mt-8 flex items-center gap-3 rounded-2xl border border-border bg-secondary/30 p-5">
         <UserIcon className="size-5 text-primary" />
         <p className="flex-1 text-sm text-muted-foreground">
-          Profile editing and a dedicated address book are coming in a later
-          phase — addresses can be added directly during checkout for now.
+          Profile editing (name, photo) is coming in a later phase.
         </p>
         <form action={signOutAction}>
           <Button type="submit" variant="outline" size="sm">

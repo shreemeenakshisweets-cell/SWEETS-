@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { RatingStars } from "@/components/product/rating-stars";
 import { ProductTagBadge } from "@/components/product/product-tag-badge";
 import { useCartStore } from "@/lib/store/cart-store";
+import { useWishlistStore } from "@/lib/store/wishlist-store";
+import { toggleWishlistAction } from "@/app/(shop)/account/wishlist/actions";
 import { formatCurrency } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/catalog";
@@ -22,8 +24,21 @@ export function ProductCard({ product }: { product: Product }) {
   const [selectedVariantId, setSelectedVariantId] = React.useState(
     variants.find((v) => v.isDefault)?.id ?? variants[0].id
   );
-  const [wishlisted, setWishlisted] = React.useState(false);
+  const wishlisted = useWishlistStore((s) => s.ids.has(product.id));
+  const setWishlisted = useWishlistStore((s) => s.setWishlisted);
   const addItem = useCartStore((s) => s.addItem);
+
+  async function handleToggleWishlist() {
+    const next = !wishlisted;
+    setWishlisted(product.id, next); // optimistic
+    const result = await toggleWishlistAction(product.id);
+    if (result.error) {
+      setWishlisted(product.id, !next); // revert
+      toast.error(result.error);
+      return;
+    }
+    toast(next ? "Added to wishlist" : "Removed from wishlist");
+  }
 
   const selectedVariant =
     variants.find((v) => v.id === selectedVariantId) ?? variants[0];
@@ -77,10 +92,7 @@ export function ProductCard({ product }: { product: Product }) {
             )}
           </div>
           <button
-            onClick={() => {
-              setWishlisted((w) => !w);
-              toast(wishlisted ? "Removed from wishlist" : "Added to wishlist");
-            }}
+            onClick={handleToggleWishlist}
             aria-label="Toggle wishlist"
             aria-pressed={wishlisted}
             className="flex size-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:text-accent"

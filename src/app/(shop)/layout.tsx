@@ -3,7 +3,9 @@ import { TopBar } from "@/components/layout/top-bar";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
+import { WishlistHydrator } from "@/components/product/wishlist-hydrator";
 import { getCurrentUser } from "@/lib/auth";
+import { getWishlistProductIds } from "@/lib/data/storefront";
 
 export default async function ShopLayout({
   children,
@@ -11,9 +13,11 @@ export default async function ShopLayout({
   children: ReactNode;
 }) {
   const user = await getCurrentUser();
+  const wishlistIds = user ? await getWishlistProductIds(user.id) : [];
 
   return (
     <div className="theme-pattern-bg flex min-h-full flex-1 flex-col">
+      <WishlistHydrator ids={wishlistIds} />
       <div className="print:hidden">
         <TopBar />
         <SiteHeader user={user} />

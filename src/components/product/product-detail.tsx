@@ -13,6 +13,8 @@ import { RatingStars } from "@/components/product/rating-stars";
 import { ProductTagBadge } from "@/components/product/product-tag-badge";
 import { ProductCard } from "@/components/product/product-card";
 import { useCartStore } from "@/lib/store/cart-store";
+import { useWishlistStore } from "@/lib/store/wishlist-store";
+import { toggleWishlistAction } from "@/app/(shop)/account/wishlist/actions";
 import { formatCurrency } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils";
 import type { Category, Product } from "@/types/catalog";
@@ -31,8 +33,21 @@ export function ProductDetail({
     product.variants.find((v) => v.isDefault)?.id ?? product.variants[0].id
   );
   const [quantity, setQuantity] = React.useState(1);
-  const [wishlisted, setWishlisted] = React.useState(false);
+  const wishlisted = useWishlistStore((s) => s.ids.has(product.id));
+  const setWishlisted = useWishlistStore((s) => s.setWishlisted);
   const addItem = useCartStore((s) => s.addItem);
+
+  async function handleToggleWishlist() {
+    const next = !wishlisted;
+    setWishlisted(product.id, next); // optimistic
+    const result = await toggleWishlistAction(product.id);
+    if (result.error) {
+      setWishlisted(product.id, !next); // revert
+      toast.error(result.error);
+      return;
+    }
+    toast(next ? "Added to wishlist" : "Removed from wishlist");
+  }
 
   const variant =
     product.variants.find((v) => v.id === selectedVariantId) ?? product.variants[0];
@@ -188,10 +203,7 @@ export function ProductDetail({
             <Button
               size="lg"
               variant="outline"
-              onClick={() => {
-                setWishlisted((w) => !w);
-                toast(wishlisted ? "Removed from wishlist" : "Added to wishlist");
-              }}
+              onClick={handleToggleWishlist}
               aria-pressed={wishlisted}
               aria-label="Toggle wishlist"
             >
