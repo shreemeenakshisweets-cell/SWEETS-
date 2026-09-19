@@ -117,7 +117,7 @@ export function CheckoutView({
       toast.error(result.error);
       return;
     }
-    toast.success("We sent a 6-digit code on WhatsApp");
+    toast.success("We sent a 6-digit code to your phone");
     setOtpStep("code");
     setOtpResendIn(OTP_RESEND_SECONDS);
   }
@@ -350,7 +350,7 @@ export function CheckoutView({
           {phoneVerified && (
             <div className="mt-4 flex items-center gap-2 rounded-lg bg-secondary/40 px-3 py-2 text-xs text-foreground/80">
               <ShieldCheck className="size-3.5 shrink-0 text-primary" />
-              We&apos;ll confirm +91 {phoneDigits} with a WhatsApp code before placing your order.
+              We&apos;ll confirm +91 {phoneDigits} with a one-time code before placing your order.
             </div>
           )}
 

@@ -43,7 +43,7 @@ async function post(path: string, body: Record<string, string>) {
 
 const NOT_CONFIGURED: OtpResult = {
   success: false,
-  error: "WhatsApp sign-in isn't set up yet — please use email instead.",
+  error: "Phone sign-in isn't set up yet — please use email instead.",
 };
 
 export async function sendWhatsAppOtp(phone: string): Promise<OtpResult> {
@@ -61,12 +61,12 @@ export async function sendWhatsAppOtp(phone: string): Promise<OtpResult> {
       return { success: false, error: "Too many codes requested. Please wait a few minutes and try again." };
     }
     if (data?.code === 60200 || data?.code === 60205) {
-      return { success: false, error: "That number can't receive WhatsApp messages. Please check it and try again." };
+      return { success: false, error: "We couldn't send a code to that number. Please check it and try again." };
     }
-    return { success: false, error: "Could not send the code on WhatsApp. Please try again." };
+    return { success: false, error: "Could not send the code. Please try again." };
   } catch (error) {
     console.error("Twilio Verify send threw:", error);
-    return { success: false, error: "Could not send the code on WhatsApp. Please try again." };
+    return { success: false, error: "Could not send the code. Please try again." };
   }
 }
 

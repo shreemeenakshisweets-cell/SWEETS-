@@ -47,7 +47,7 @@ export function PhoneOtpForm() {
       toast.error(result.error);
       return false;
     }
-    toast.success("We sent a 6-digit code on WhatsApp");
+    toast.success("We sent a 6-digit code to your phone");
     setResendIn(RESEND_SECONDS);
     return true;
   }
@@ -89,7 +89,7 @@ export function PhoneOtpForm() {
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {step === "phone"
-            ? "We'll WhatsApp you a one-time 6-digit code."
+            ? "We'll send you a one-time 6-digit code."
             : `Enter the code sent to +91 ${phone}`}
         </p>
       </div>
