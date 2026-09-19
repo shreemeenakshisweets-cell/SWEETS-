@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { InvoiceView } from "@/components/orders/invoice-view";
 import { getAdminOrderById } from "@/lib/data/admin/orders";
+import { realEmail } from "@/lib/utils/contact";
 
 export const metadata: Metadata = { title: "Invoice" };
 
@@ -21,7 +22,7 @@ export default async function AdminOrderInvoicePage({
       orderNumber={order.orderNumber}
       customer={{
         name: order.shippingAddress.fullName,
-        email: order.user.email,
+        email: realEmail(order.user.email) ?? "",
         phone: order.shippingAddress.phone,
       }}
       billingAddress={order.shippingAddress}

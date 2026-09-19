@@ -30,8 +30,17 @@ export const getCurrentUser = cache(async (): Promise<AppUser | null> => {
   // catches that, `??` wouldn't since "" isn't nullish. Normalized to
   // "+91XXXXXXXXXX" so this column has one consistent shape regardless of
   // whatever format Supabase happens to echo back.
-  const phone = authUser.phone ? normalizePhone(authUser.phone) : null;
-  const phoneVerified = Boolean(authUser.phone_confirmed_at);
+  //
+  // The phone lives in `app_metadata` (server-only writable — unlike
+  // `user_metadata`, a user can't set it themselves) because Supabase's own
+  // phone field needs the Phone provider, which is intentionally disabled
+  // (see lib/utils/contact.ts). The native field is still honoured if present.
+  const appPhone =
+    typeof authUser.app_metadata?.phone === "string" ? authUser.app_metadata.phone : null;
+  const rawPhone = authUser.phone || appPhone;
+  const phone = rawPhone ? normalizePhone(rawPhone) : null;
+  const phoneVerified =
+    Boolean(authUser.phone_confirmed_at) || authUser.app_metadata?.phone_verified === true;
 
   return prisma.user.upsert({
     where: { id: authUser.id },

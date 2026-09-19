@@ -7,6 +7,7 @@ import { OrderStatusTimeline } from "@/components/orders/order-status-timeline";
 import { OrderStatusControl } from "@/components/admin/order-status-control";
 import { formatCurrency } from "@/lib/utils/currency";
 import { getAdminOrderById } from "@/lib/data/admin/orders";
+import { contactLabel } from "@/lib/utils/contact";
 
 export async function generateMetadata({
   params,
@@ -58,7 +59,7 @@ export default async function AdminOrderDetailPage({
               Customer
             </h2>
             <p className="text-sm text-foreground">
-              {order.user.fullName ?? "—"} · {order.user.email}
+              {order.user.fullName ?? "—"} · {contactLabel(order.user)}
             </p>
             {order.user.phone && <p className="text-sm text-muted-foreground">{order.user.phone}</p>}
             <Link

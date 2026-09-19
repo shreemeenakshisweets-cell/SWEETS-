@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { signOutAction } from "@/app/(auth)/actions";
 import { Button } from "@/components/ui/button";
 import { PhoneSettings } from "@/components/account/phone-settings";
+import { contactLabel } from "@/lib/utils/contact";
 
 export const metadata: Metadata = { title: "My Account" };
 
@@ -32,7 +33,7 @@ const links = [
 
 export default async function AccountPage() {
   const user = await requireUser();
-  const initials = (user.fullName ?? user.email).slice(0, 1).toUpperCase();
+  const initials = (user.fullName ?? contactLabel(user)).slice(0, 1).toUpperCase();
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
@@ -46,7 +47,7 @@ export default async function AccountPage() {
           <h1 className="font-heading text-2xl font-semibold text-foreground">
             {user.fullName ?? "Your Account"}
           </h1>
-          <p className="text-sm text-muted-foreground">{user.email}</p>
+          <p className="text-sm text-muted-foreground">{contactLabel(user)}</p>
         </div>
       </div>
 

@@ -11,6 +11,7 @@ import {
   getSalesByDay,
   getTopProducts,
 } from "@/lib/data/admin/dashboard";
+import { contactLabel } from "@/lib/utils/contact";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -92,7 +93,7 @@ export default async function AdminDashboardPage() {
               <div>
                 <p className="font-medium text-foreground">{order.orderNumber}</p>
                 <p className="text-xs text-muted-foreground">
-                  {order.user.fullName ?? order.user.email} ·{" "}
+                  {order.user.fullName ?? contactLabel(order.user)} ·{" "}
                   {order.createdAt.toLocaleDateString("en-IN", { dateStyle: "medium" })}
                 </p>
               </div>

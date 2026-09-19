@@ -4,6 +4,7 @@ import { FileText } from "lucide-react";
 import { InvoiceView } from "@/components/orders/invoice-view";
 import { requireUser } from "@/lib/auth";
 import { getOrderForUser } from "@/lib/data/orders";
+import { realEmail } from "@/lib/utils/contact";
 
 export const metadata: Metadata = { title: "Invoice" };
 
@@ -38,7 +39,7 @@ export default async function OrderInvoicePage({
       orderNumber={order.orderNumber}
       customer={{
         name: order.shippingAddress.fullName,
-        email: order.user.email,
+        email: realEmail(order.user.email) ?? "",
         phone: order.shippingAddress.phone,
       }}
       billingAddress={order.shippingAddress}

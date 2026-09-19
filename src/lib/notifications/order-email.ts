@@ -6,6 +6,7 @@ import { BUSINESS } from "@/lib/business";
 import { formatCurrency } from "@/lib/utils/currency";
 import { escapeHtml } from "@/lib/utils/html";
 import type { NotificationType, OrderStatus } from "@/generated/prisma/client";
+import { realEmail } from "@/lib/utils/contact";
 
 const BRAND = {
   primary: "#7a6118",
@@ -106,10 +107,11 @@ export async function sendOrderStatusEmail(orderId: string, status: OrderStatus)
       .join("");
     const html = renderEmailHtml(content, order.orderNumber, itemsHtml, formatCurrency(Number(order.total)));
 
-    if (process.env.RESEND_API_KEY) {
+    const customerEmail = realEmail(order.user.email);
+    if (process.env.RESEND_API_KEY && customerEmail) {
       await getResend().emails.send({
         from: `${BUSINESS.tradeName} <${process.env.RESEND_FROM_EMAIL || "orders@resend.dev"}>`,
-        to: order.user.email,
+        to: customerEmail,
         subject: content.subject,
         html,
       });

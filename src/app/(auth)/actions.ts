@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { randomBytes } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/lib/prisma";
@@ -10,6 +9,7 @@ import { getCurrentUser } from "@/lib/auth";
 // TEMPORARY: voice-call codes until 2Factor's WhatsApp service is ready (see lib/twofactor.ts).
 import { sendVoiceOtp, verifyVoiceOtp } from "@/lib/twofactor";
 import { normalizePhone } from "@/lib/utils/phone";
+import { phoneLoginEmail } from "@/lib/utils/contact";
 import {
   emailOnlySchema,
   newPasswordSchema,
@@ -109,22 +109,19 @@ export async function requestPhoneOtpAction(input: unknown): Promise<ActionResul
 }
 
 /**
- * On a correct voice-call code, bridges the verified phone into a real Supabase
- * session (via the service-role Admin API, since there's no native
- * phone-provider flow to lean on) — how depends on what's already on the
- * matching account:
+ * On a correct code, bridges the verified phone into a real Supabase session
+ * (via the service-role Admin API — there's no native phone-provider flow to
+ * lean on). Supabase's Phone provider is deliberately OFF: enabling it exposes
+ * public phone sign-up, which lets anyone pre-register a stranger's number
+ * before its owner does. So phone accounts use the email path instead:
  *
- * - Phone-only account (no email — e.g. first-ever sign-in with this
- *   number): give it a fresh single-use random password nobody ever sees,
- *   then sign in with it through the request-scoped client. Safe to
- *   overwrite on every login since nothing else depends on that password.
- * - Account with a real email (e.g. this phone was later linked to an
- *   existing email/password account under Account Settings): bridge in via
- *   an admin-generated magic-link token instead. This NEVER touches
- *   `password` — a previous bug used the same password-overwrite path for
- *   every account regardless, which silently broke email/password login
- *   for anyone who ever used "Continue with Phone Number" on an account
- *   that also signs in with email.
+ * - The account for this number is found by phone (`users.phone`). If none
+ *   exists, one is created with a placeholder email (lib/utils/contact.ts) and
+ *   the number recorded in server-only `app_metadata`.
+ * - A session is then issued with an admin-generated magic-link token, so no
+ *   password is ever set or overwritten — an earlier version overwrote the
+ *   password on every phone login, which broke email/password sign-in for
+ *   accounts that had both.
  */
 export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult> {
   const parsed = phoneOtpVerifySchema.safeParse(input);
@@ -136,39 +133,42 @@ export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult
   const phone = normalizePhone(parsed.data.phone);
   const admin = createAdminClient();
   const supabase = await createClient();
+
   const existing = await prisma.user.findUnique({ where: { phone } });
+  let email = existing?.email;
 
-  if (existing?.email) {
-    const { data, error: linkError } = await admin.auth.admin.generateLink({
-      type: "magiclink",
-      email: existing.email,
+  if (!email) {
+    email = phoneLoginEmail(phone);
+    const { error } = await admin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      app_metadata: { phone, phone_verified: true },
     });
-    if (linkError || !data) return { error: linkError?.message ?? "Could not sign in." };
-
-    const { error } = await supabase.auth.verifyOtp({
-      email: existing.email,
-      token_hash: data.properties.hashed_token,
-      type: "magiclink",
-    });
-    if (error) return { error: error.message };
-  } else {
-    const tempPassword = randomBytes(24).toString("hex");
-    if (existing) {
-      const { error } = await admin.auth.admin.updateUserById(existing.id, {
-        password: tempPassword,
-      });
-      if (error) return { error: error.message };
-    } else {
-      const { error } = await admin.auth.admin.createUser({
-        phone,
-        phone_confirm: true,
-        password: tempPassword,
-      });
-      if (error) return { error: error.message };
+    // "already registered" = an earlier attempt created the auth user but the
+    // app row wasn't written yet; carrying on to sign in is exactly right.
+    if (error && !/already|registered|exists/i.test(error.message)) {
+      console.error("Creating phone-login account failed:", error.message);
+      return { error: "Could not sign you in. Please try again." };
     }
+  }
 
-    const { error } = await supabase.auth.signInWithPassword({ phone, password: tempPassword });
-    if (error) return { error: error.message };
+  const { data, error: linkError } = await admin.auth.admin.generateLink({
+    type: "magiclink",
+    email,
+  });
+  if (linkError || !data) {
+    console.error("Generating phone-login session failed:", linkError?.message);
+    return { error: "Could not sign you in. Please try again." };
+  }
+
+  // Supabase rejects a token_hash accompanied by an email/phone — only these two.
+  const { error } = await supabase.auth.verifyOtp({
+    token_hash: data.properties.hashed_token,
+    type: "magiclink",
+  });
+  if (error) {
+    console.error("Verifying phone-login session failed:", error.message);
+    return { error: "Could not sign you in. Please try again." };
   }
 
   revalidatePath("/", "layout");
@@ -189,11 +189,11 @@ export async function requestLinkPhoneAction(input: unknown): Promise<ActionResu
 }
 
 /**
- * On a correct voice-call code, attaches the phone directly to the signed-in
- * user via the Admin API (phone_confirm: true — we already did the real
- * verification ourselves via the voice-call code). Supabase itself rejects this if the
- * phone is already confirmed on a *different* account, which is what
- * enforces "a verified phone can't be linked to multiple accounts."
+ * On a correct voice-call code, records the verified phone on the signed-in
+ * user's server-only `app_metadata` via the Admin API (we already did the real
+ * verification ourselves). Supabase's own phone field is unused — see
+ * verifyPhoneOtpAction — so "a verified phone can't be linked to multiple
+ * accounts" is enforced here, with an explicit check against users.phone.
  */
 export async function verifyLinkPhoneAction(input: unknown): Promise<ActionResult> {
   const parsed = phoneOtpVerifySchema.safeParse(input);
@@ -205,10 +205,16 @@ export async function verifyLinkPhoneAction(input: unknown): Promise<ActionResul
   const user = await getCurrentUser();
   if (!user) return { error: "Please sign in again and retry." };
 
+  const phone = normalizePhone(parsed.data.phone);
+  const takenBy = await prisma.user.findFirst({
+    where: { phone, id: { not: user.id } },
+    select: { id: true },
+  });
+  if (takenBy) return { error: "We couldn't add this number. Please try a different one." };
+
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.updateUserById(user.id, {
-    phone: normalizePhone(parsed.data.phone),
-    phone_confirm: true,
+    app_metadata: { phone, phone_verified: true },
   });
   if (error) return { error: error.message };
 

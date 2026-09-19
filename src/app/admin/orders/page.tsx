@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib/utils/currency";
 import { getAdminOrders } from "@/lib/data/admin/orders";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/generated/prisma/client";
+import { contactLabel } from "@/lib/utils/contact";
 
 export const metadata: Metadata = { title: "Orders" };
 
@@ -82,7 +83,7 @@ export default async function AdminOrdersPage({
                   </Link>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {order.user.fullName ?? order.user.email}
+                  {order.user.fullName ?? contactLabel(order.user)}
                 </TableCell>
                 <TableCell className="text-muted-foreground">{order.items.length}</TableCell>
                 <TableCell className="tabular-nums text-foreground">

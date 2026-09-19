@@ -24,6 +24,7 @@ import { CartSheet } from "@/components/cart/cart-sheet";
 import { signOutAction } from "@/app/(auth)/actions";
 import { cn } from "@/lib/utils";
 import type { User as AppUser } from "@/generated/prisma/client";
+import { contactLabel } from "@/lib/utils/contact";
 
 /**
  * A nav link is active only when both its path AND its query params
@@ -54,7 +55,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
     router.push(query.trim() ? `/menu?q=${encodeURIComponent(query.trim())}` : "/menu");
   }
 
-  const initials = (user?.fullName ?? user?.email ?? "?").slice(0, 1).toUpperCase();
+  const initials = (user?.fullName ?? (user ? contactLabel(user) : "?")).slice(0, 1).toUpperCase();
 
   return (
     <motion.header
@@ -216,7 +217,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuLabel className="truncate">
-                  {user.fullName ?? user.email}
+                  {user.fullName ?? contactLabel(user)}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem render={<Link href="/account" />}>

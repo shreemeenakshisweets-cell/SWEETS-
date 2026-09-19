@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CheckoutView } from "@/components/checkout/checkout-view";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
+import { contactLabel } from "@/lib/utils/contact";
 
 export const metadata: Metadata = {
   title: "Checkout",
@@ -17,7 +18,7 @@ export default async function CheckoutPage() {
   return (
     <CheckoutView
       initialAddresses={addresses}
-      customerEmail={user.email}
+      customerEmail={contactLabel(user)}
       customerPhone={user.phone}
       phoneVerified={user.phoneVerified}
     />

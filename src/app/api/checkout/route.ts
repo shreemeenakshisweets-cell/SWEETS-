@@ -6,6 +6,7 @@ import { checkoutRequestSchema } from "@/lib/validation/checkout";
 import { validateCoupon } from "@/lib/data/coupon-validation";
 import { computeOrderTotals } from "@/lib/pricing";
 import { generateOrderNumber } from "@/lib/order-number";
+import { realEmail } from "@/lib/utils/contact";
 
 /**
  * Creates a pending Order (with authoritative, DB-verified pricing) and a
@@ -158,7 +159,7 @@ export async function POST(request: NextRequest) {
     keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     customer: {
       name: address.fullName,
-      email: user.email,
+      email: realEmail(user.email) ?? undefined,
       contact: address.phone,
     },
   });

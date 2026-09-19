@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatCurrency } from "@/lib/utils/currency";
 import { getAdminCustomers } from "@/lib/data/admin/customers";
+import { contactLabel } from "@/lib/utils/contact";
 
 export const metadata: Metadata = { title: "Customers" };
 
@@ -45,7 +46,7 @@ export default async function AdminCustomersPage() {
                     {customer.fullName ?? "—"}
                   </Link>
                 </TableCell>
-                <TableCell className="text-muted-foreground">{customer.email}</TableCell>
+                <TableCell className="text-muted-foreground">{contactLabel(customer)}</TableCell>
                 <TableCell className="tabular-nums text-muted-foreground">
                   {customer.orderCount}
                 </TableCell>

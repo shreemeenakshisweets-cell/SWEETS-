@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { formatCurrency } from "@/lib/utils/currency";
 import { getAdminCustomerById } from "@/lib/data/admin/customers";
+import { contactLabel } from "@/lib/utils/contact";
 
 export async function generateMetadata({
   params,
@@ -13,7 +14,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const customer = await getAdminCustomerById(id);
-  return { title: customer?.fullName ?? customer?.email ?? "Customer" };
+  return { title: customer?.fullName ?? (customer ? contactLabel(customer) : "Customer") };
 }
 
 export default async function AdminCustomerDetailPage({
@@ -25,7 +26,7 @@ export default async function AdminCustomerDetailPage({
   const customer = await getAdminCustomerById(id);
   if (!customer) notFound();
 
-  const initials = (customer.fullName ?? customer.email).slice(0, 1).toUpperCase();
+  const initials = (customer.fullName ?? contactLabel(customer)).slice(0, 1).toUpperCase();
   const totalSpent = customer.orders
     .filter((o) => o.status !== "CANCELLED" && o.status !== "PENDING")
     .reduce((sum, o) => sum + Number(o.total), 0);
@@ -42,7 +43,7 @@ export default async function AdminCustomerDetailPage({
           <h1 className="font-heading text-2xl font-semibold text-foreground">
             {customer.fullName ?? "Unnamed Customer"}
           </h1>
-          <p className="text-sm text-muted-foreground">{customer.email}</p>
+          <p className="text-sm text-muted-foreground">{contactLabel(customer)}</p>
         </div>
       </div>
 
