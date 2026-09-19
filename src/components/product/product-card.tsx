@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Heart, Plus } from "lucide-react";
+import { Heart, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,8 @@ import { formatCurrency } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/catalog";
 
+const subscribeNever = () => () => {};
+
 export function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
   const variants = product.variants;
@@ -27,6 +29,11 @@ export function ProductCard({ product }: { product: Product }) {
   const wishlisted = useWishlistStore((s) => s.ids.has(product.id));
   const setWishlisted = useWishlistStore((s) => s.setWishlisted);
   const addItem = useCartStore((s) => s.addItem);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const cartItems = useCartStore((s) => s.items);
+  // The cart persists to localStorage, so the server render never has items —
+  // hold off on showing quantities until mounted to avoid a hydration mismatch.
+  const mounted = React.useSyncExternalStore(subscribeNever, () => true, () => false);
 
   async function handleToggleWishlist() {
     const next = !wishlisted;
@@ -42,6 +49,9 @@ export function ProductCard({ product }: { product: Product }) {
 
   const selectedVariant =
     variants.find((v) => v.id === selectedVariantId) ?? variants[0];
+  const inCartQty = mounted
+    ? (cartItems.find((i) => i.variantId === selectedVariant.id)?.quantity ?? 0)
+    : 0;
   const discountPct = selectedVariant.compareAtPrice
     ? Math.round(
         (1 - selectedVariant.price / selectedVariant.compareAtPrice) * 100
@@ -132,7 +142,7 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
 
-        <div className="mt-auto flex items-end justify-between pt-2">
+        <div className="mt-auto flex flex-wrap items-end justify-between gap-x-2 gap-y-2 pt-2">
           <div className="flex flex-col">
             <span className="font-heading text-base font-semibold text-foreground">
               {formatCurrency(selectedVariant.price)}
@@ -143,9 +153,34 @@ export function ProductCard({ product }: { product: Product }) {
               </span>
             )}
           </div>
-          <Button size="sm" onClick={handleAdd} className="gap-1">
-            <Plus className="size-3.5" /> Add
-          </Button>
+          {inCartQty > 0 ? (
+            <div className="flex items-center rounded-full border border-primary/40 bg-primary/5">
+              <button
+                type="button"
+                onClick={() => updateQuantity(selectedVariant.id, inCartQty - 1)}
+                aria-label={`Decrease ${product.name} quantity`}
+                className="flex size-8 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10"
+              >
+                <Minus className="size-3.5" />
+              </button>
+              <span className="min-w-5 text-center text-sm font-semibold tabular-nums text-foreground" aria-live="polite">
+                {inCartQty}
+              </span>
+              <button
+                type="button"
+                onClick={() => updateQuantity(selectedVariant.id, inCartQty + 1)}
+                disabled={inCartQty >= selectedVariant.stock}
+                aria-label={`Increase ${product.name} quantity`}
+                className="flex size-8 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10 disabled:opacity-40"
+              >
+                <Plus className="size-3.5" />
+              </button>
+            </div>
+          ) : (
+            <Button size="sm" onClick={handleAdd} className="gap-1">
+              <Plus className="size-3.5" /> Add
+            </Button>
+          )}
         </div>
       </div>
     </motion.div>
