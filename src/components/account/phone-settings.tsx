@@ -50,7 +50,7 @@ export function PhoneSettings({
       toast.error(result.error);
       return false;
     }
-    toast.success("We sent a 6-digit code by SMS");
+    toast.success("We sent a 6-digit code on WhatsApp");
     setResendIn(RESEND_SECONDS);
     return true;
   }
