@@ -282,6 +282,7 @@ model OtpRequest {
   phone     String
   ip        String?
   sessionId String?
+  codeHash  String?
   attempts  Int      @default(0)
   createdAt DateTime @default(now())
 

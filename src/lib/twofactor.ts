@@ -2,29 +2,28 @@ import "server-only";
 import { cookies, headers } from "next/headers";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { prisma } from "@/lib/prisma";
+import { generateOtpCode, hashOtpCode, otpCodeMatches } from "@/lib/otp-code";
 
 /**
  * TEMPORARY: one-time codes delivered as an automated voice call through
  * 2Factor.in (API V1, `VOICE` route), while 2Factor's WhatsApp service is
  * still being set up on their side. When it's ready, add a WhatsApp variant
  * here with the same shape (send/verify returning OtpResult) and switch the
- * calls in app/(auth)/actions.ts — the session binding and limits below apply
- * to any channel.
+ * calls in app/(auth)/actions.ts — the code handling and limits below apply to
+ * any channel.
  *
- * 2Factor generates, stores and expires the code; we only start the call and
- * verify against it. See verifyPhoneOtpAction for how a verified number becomes
- * a Supabase session.
+ * 2Factor only *delivers* the call. Its auto-generated codes are 4 digits, but
+ * this site uses 6, so we generate the 6-digit code ourselves, have 2Factor
+ * read it out (`VOICE/{number}/{code}`), and verify it here. Only a keyed hash
+ * of the code is stored (`otp_requests.codeHash`), never the code itself.
  *
- * Session binding: 2Factor verifies by *session id* (returned when the call is
- * placed), not by phone number. If the browser were trusted to hand that id
- * back, someone could request a call to their own phone, then submit that code
- * against a victim's number and pass. So the id never reaches the client — it
- * lives in a signed, httpOnly cookie together with the phone it was issued
- * for, and verification requires the submitted phone to match.
+ * Request binding: the request id lives in a signed, httpOnly cookie together
+ * with the phone it was issued for, and verification requires the submitted
+ * phone to match — so a code requested for one number can't be used to sign in
+ * as another.
  *
  * Abuse control: a voice call costs money and rings a real phone, so calls are
- * limited per number and per IP, and wrong guesses per session are capped
- * (`otp_requests` table — it stores counts only, never the code).
+ * limited per number and per IP, and wrong guesses per request are capped.
  */
 
 type OtpResult = { success: true } | { success: false; error: string };
@@ -53,9 +52,9 @@ function sign(payload: string, secret: string): string {
   return createHmac("sha256", secret).update(payload).digest("base64url");
 }
 
-async function writeSession(phone: string, sessionId: string, secret: string) {
+async function writeSession(phone: string, requestId: string, secret: string) {
   const payload = Buffer.from(
-    JSON.stringify({ phone, sessionId, exp: Date.now() + SESSION_TTL_SECONDS * 1000 })
+    JSON.stringify({ phone, requestId, exp: Date.now() + SESSION_TTL_SECONDS * 1000 })
   ).toString("base64url");
   (await cookies()).set(COOKIE_NAME, `${payload}.${sign(payload, secret)}`, {
     httpOnly: true,
@@ -66,7 +65,7 @@ async function writeSession(phone: string, sessionId: string, secret: string) {
   });
 }
 
-async function readSession(secret: string): Promise<{ phone: string; sessionId: string } | null> {
+async function readSession(secret: string): Promise<{ phone: string; requestId: string } | null> {
   const raw = (await cookies()).get(COOKIE_NAME)?.value;
   if (!raw) return null;
 
@@ -80,8 +79,8 @@ async function readSession(secret: string): Promise<{ phone: string; sessionId: 
   try {
     const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
     if (typeof data.exp !== "number" || data.exp < Date.now()) return null;
-    if (typeof data.phone !== "string" || typeof data.sessionId !== "string") return null;
-    return { phone: data.phone, sessionId: data.sessionId };
+    if (typeof data.phone !== "string" || typeof data.requestId !== "string") return null;
+    return { phone: data.phone, requestId: data.requestId };
   } catch {
     return null;
   }
@@ -123,12 +122,13 @@ export async function sendVoiceOtp(phone: string): Promise<OtpResult> {
       .deleteMany({ where: { createdAt: { lt: new Date(now - 24 * 60 * MINUTE) } } })
       .catch(() => {});
 
+    const code = generateOtpCode();
     const res = await fetch(
-      `https://2factor.in/API/V1/${encodeURIComponent(apiKey)}/VOICE/${number}/AUTOGEN`,
+      `https://2factor.in/API/V1/${encodeURIComponent(apiKey)}/VOICE/${number}/${code}`,
       { method: "GET", cache: "no-store" }
     );
     const data = await res.json().catch(() => null);
-    if (!res.ok || data?.Status !== "Success" || typeof data?.Details !== "string") {
+    if (!res.ok || data?.Status !== "Success") {
       console.error("2Factor voice OTP send failed:", res.status, data?.Details);
       if (String(data?.Details).includes("Duplicate request")) {
         return { success: false, error: "Please wait a few seconds before asking for another call." };
@@ -139,8 +139,14 @@ export async function sendVoiceOtp(phone: string): Promise<OtpResult> {
       return { success: false, error: "Could not place the call. Please try again." };
     }
 
-    await prisma.otpRequest.update({ where: { id: request.id }, data: { sessionId: data.Details } });
-    await writeSession(number, data.Details, secret);
+    await prisma.otpRequest.update({
+      where: { id: request.id },
+      data: {
+        codeHash: hashOtpCode(secret, request.id, number, code),
+        sessionId: typeof data.Details === "string" ? data.Details : null,
+      },
+    });
+    await writeSession(number, request.id, secret);
     return { success: true };
   } catch (error) {
     console.error("2Factor voice OTP send threw:", error);
@@ -149,49 +155,41 @@ export async function sendVoiceOtp(phone: string): Promise<OtpResult> {
 }
 
 export async function verifyVoiceOtp(phone: string, otp: string): Promise<OtpResult> {
-  const apiKey = process.env.TWOFACTOR_API_KEY;
   const secret = signingSecret();
-  if (!apiKey || !secret) return NOT_CONFIGURED;
+  if (!process.env.TWOFACTOR_API_KEY || !secret) return NOT_CONFIGURED;
+
+  const number = tenDigits(phone);
+  const expiredMessage = "That code has expired. Please request a new call.";
 
   const session = await readSession(secret);
-  if (!session || session.phone !== tenDigits(phone)) {
-    return { success: false, error: "That code has expired. Please request a new call." };
-  }
+  if (!session || session.phone !== number) return { success: false, error: expiredMessage };
 
   try {
-    const record = await prisma.otpRequest.findFirst({ where: { sessionId: session.sessionId } });
-    if (record && record.attempts >= MAX_WRONG_GUESSES) {
+    const record = await prisma.otpRequest.findUnique({ where: { id: session.requestId } });
+    const fresh = record && record.createdAt.getTime() > Date.now() - SESSION_TTL_SECONDS * 1000;
+    if (!record || record.phone !== number || !record.codeHash || !fresh) {
+      return { success: false, error: expiredMessage };
+    }
+    if (record.attempts >= MAX_WRONG_GUESSES) {
       (await cookies()).delete(COOKIE_NAME);
       return { success: false, error: "Too many incorrect attempts. Please request a new call." };
     }
 
-    const res = await fetch(
-      `https://2factor.in/API/V1/${encodeURIComponent(apiKey)}/VOICE/VERIFY/${encodeURIComponent(session.sessionId)}/${encodeURIComponent(otp)}`,
-      { method: "GET", cache: "no-store" }
-    );
-    const data = await res.json().catch(() => null);
-
-    if (res.ok && data?.Status === "Success") {
-      // Single use: a matched code can't be replayed against the same session.
+    if (otpCodeMatches(secret, record.id, number, otp, record.codeHash)) {
+      // Single use: clearing the hash means this code can never be accepted again.
+      await prisma.otpRequest.update({ where: { id: record.id }, data: { codeHash: null } });
       (await cookies()).delete(COOKIE_NAME);
-      if (record) {
-        await prisma.otpRequest.update({ where: { id: record.id }, data: { attempts: MAX_WRONG_GUESSES } });
-      }
       return { success: true };
     }
 
-    if (record) {
-      await prisma.otpRequest.update({ where: { id: record.id }, data: { attempts: { increment: 1 } } });
-    }
-    const left = record ? Math.max(0, MAX_WRONG_GUESSES - (record.attempts + 1)) : null;
+    await prisma.otpRequest.update({ where: { id: record.id }, data: { attempts: { increment: 1 } } });
+    const left = Math.max(0, MAX_WRONG_GUESSES - (record.attempts + 1));
     return {
       success: false,
       error:
-        left === null
-          ? "Incorrect or expired code. Please try again."
-          : left > 0
-            ? `Incorrect code. ${left} ${left === 1 ? "attempt" : "attempts"} left.`
-            : "Too many incorrect attempts. Please request a new call.",
+        left > 0
+          ? `Incorrect code. ${left} ${left === 1 ? "attempt" : "attempts"} left.`
+          : "Too many incorrect attempts. Please request a new call.",
     };
   } catch (error) {
     console.error("2Factor voice OTP verify threw:", error);
