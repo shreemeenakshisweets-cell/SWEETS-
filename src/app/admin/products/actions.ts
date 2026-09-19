@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CATALOG_TAG } from "@/lib/data/storefront";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { productInputSchema } from "@/lib/validation/admin";
@@ -88,6 +89,7 @@ export async function saveProductAction(input: unknown): Promise<ActionResult> {
       ]);
 
       revalidatePath("/admin/products");
+      updateTag(CATALOG_TAG);
       return { id };
     }
 
@@ -109,6 +111,7 @@ export async function saveProductAction(input: unknown): Promise<ActionResult> {
     });
 
     revalidatePath("/admin/products");
+    updateTag(CATALOG_TAG);
     return { id: product.id };
   } catch {
     return { error: "Could not save product — check the slug and SKUs are unique." };
@@ -123,6 +126,7 @@ export async function deleteProductAction(id: string): Promise<ActionResult> {
     return { error: "Could not delete product." };
   }
   revalidatePath("/admin/products");
+  updateTag(CATALOG_TAG);
   return {};
 }
 
@@ -130,5 +134,6 @@ export async function toggleProductActiveAction(id: string, isActive: boolean): 
   await requireAdmin();
   await prisma.product.update({ where: { id }, data: { isActive } });
   revalidatePath("/admin/products");
+  updateTag(CATALOG_TAG);
   return {};
 }

@@ -64,7 +64,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
       className={cn(
         "sticky top-0 z-40 w-full border-b transition-colors duration-300",
         scrolled
-          ? "border-border bg-background/85 backdrop-blur-md supports-backdrop-filter:bg-background/70"
+          ? "border-border bg-background/95"
           : "border-transparent bg-background"
       )}
     >

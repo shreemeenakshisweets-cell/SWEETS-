@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CATALOG_TAG } from "@/lib/data/storefront";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { homepageContentInputSchema } from "@/lib/validation/admin";
@@ -51,6 +52,7 @@ export async function saveHomepageContentAction(
   }
 
   revalidatePath("/admin/homepage-content");
+  updateTag(CATALOG_TAG);
   revalidatePath("/", "layout");
   return {};
 }

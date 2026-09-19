@@ -12,7 +12,7 @@ export function LegacyBanner() {
   return (
     <section className="relative w-full overflow-hidden bg-[#f2e6cf]" style={{ aspectRatio: "3 / 1" }}>
       <Image
-        src="/backgrounds/dancers.png"
+        src="/backgrounds/dancers.webp"
         alt="Classical South Indian dance figures — a nod to the tradition behind our recipes"
         fill
         sizes="100vw"

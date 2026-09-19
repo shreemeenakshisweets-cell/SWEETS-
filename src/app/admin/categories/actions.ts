@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CATALOG_TAG } from "@/lib/data/storefront";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { categoryInputSchema } from "@/lib/validation/admin";
@@ -44,6 +45,7 @@ export async function saveCategoryAction(input: unknown): Promise<ActionResult> 
       : await prisma.category.create({ data: fields });
 
     revalidatePath("/admin/categories");
+    updateTag(CATALOG_TAG);
     revalidatePath("/menu");
     return { id: category.id };
   } catch {
@@ -59,6 +61,7 @@ export async function deleteCategoryAction(id: string): Promise<ActionResult> {
     return { error: "Could not delete — this category still has products in it." };
   }
   revalidatePath("/admin/categories");
+  updateTag(CATALOG_TAG);
   return {};
 }
 
@@ -69,6 +72,7 @@ export async function toggleCategoryActiveAction(
   await requireAdmin();
   await prisma.category.update({ where: { id }, data: { isActive } });
   revalidatePath("/admin/categories");
+  updateTag(CATALOG_TAG);
   revalidatePath("/menu");
   revalidatePath("/", "layout");
   return {};

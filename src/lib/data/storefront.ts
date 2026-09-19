@@ -1,6 +1,26 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { placeholderImage } from "@/lib/data/placeholder-image";
 import type { Category, Product, ProductReview, ProductTag, Testimonial } from "@/types/catalog";
+
+/**
+ * Tag on every cached public-catalog query below. Admin edits call
+ * `updateTag(CATALOG_TAG)` (see the admin server actions) so changes show up
+ * immediately; the 2-minute `revalidate` is only a safety net (e.g. stock
+ * drifting after an order is paid, which happens in a route handler).
+ */
+export const CATALOG_TAG = "catalog";
+
+/**
+ * These queries return the same data for every visitor, but ran against the
+ * database on every single page view — several sequential round trips each
+ * (nested includes cost one per level) plus a cold connection on serverless.
+ * Results are JSON-serialised in the cache, so only return plain data (the
+ * mappers below already turn Decimals into numbers).
+ */
+function cachedQuery<A extends unknown[], R>(name: string, fn: (...args: A) => Promise<R>) {
+  return unstable_cache(fn, [`storefront:${name}`], { tags: [CATALOG_TAG], revalidate: 120 });
+}
 
 const productInclude = {
   category: true,
@@ -59,25 +79,25 @@ function mapProduct(p: ProductWithRelations): Product {
 }
 
 /** Active categories, in admin-configured display order. */
-export async function getCategories(): Promise<Category[]> {
+export const getCategories = cachedQuery("categories", async (): Promise<Category[]> => {
   const categories = await prisma.category.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: "asc" },
   });
   return categories.map(mapCategory);
-}
+});
 
 /** Active products with at least one variant, newest first. */
-export async function getActiveProducts(): Promise<Product[]> {
+export const getActiveProducts = cachedQuery("active-products", async (): Promise<Product[]> => {
   const products = await prisma.product.findMany({
     where: { isActive: true, variants: { some: {} }, category: { isActive: true } },
     include: productInclude,
     orderBy: { createdAt: "desc" },
   });
   return products.map(mapProduct);
-}
+});
 
-export async function getFeaturedProducts(): Promise<Product[]> {
+export const getFeaturedProducts = cachedQuery("featured-products", async (): Promise<Product[]> => {
   const products = await prisma.product.findMany({
     where: {
       isActive: true,
@@ -89,42 +109,42 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     orderBy: { createdAt: "desc" },
   });
   return products.map(mapProduct);
-}
+});
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+export const getProductBySlug = cachedQuery("product-by-slug", async (slug: string): Promise<Product | null> => {
   const product = await prisma.product.findFirst({
     where: { slug, isActive: true, category: { isActive: true } },
     include: productInclude,
   });
   return product ? mapProduct(product) : null;
-}
+});
 
-export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
+export const getProductsByCategory = cachedQuery("products-by-category", async (categorySlug: string): Promise<Product[]> => {
   const products = await prisma.product.findMany({
     where: { isActive: true, variants: { some: {} }, category: { slug: categorySlug } },
     include: productInclude,
     orderBy: { createdAt: "desc" },
   });
   return products.map(mapProduct);
-}
+});
 
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+export const getCategoryBySlug = cachedQuery("category-by-slug", async (slug: string): Promise<Category | null> => {
   const category = await prisma.category.findFirst({ where: { slug, isActive: true } });
   return category ? mapCategory(category) : null;
-}
+});
 
 /** Active homepage banners, in admin-configured display order. */
-export async function getActiveBanners() {
+export const getActiveBanners = cachedQuery("active-banners", async () => {
   return prisma.banner.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: "asc" },
   });
-}
+});
 
 /** One-off homepage content (currently just the brand-story artwork). */
-export async function getHomepageContent() {
+export const getHomepageContent = cachedQuery("homepage-content", async () => {
   return prisma.homepageContent.findUnique({ where: { id: "homepage" } });
-}
+});
 
 /** Product IDs the given user has wishlisted — cheap set for card hearts. */
 export async function getWishlistProductIds(userId: string): Promise<string[]> {
@@ -160,7 +180,7 @@ export async function getAllProductSlugs(): Promise<string[]> {
  * a star rating) and returns an empty array until there's enough of it;
  * the homepage hides the whole section rather than show fewer than 3.
  */
-export async function getFeaturedTestimonials(): Promise<Testimonial[]> {
+export const getFeaturedTestimonials = cachedQuery("featured-testimonials", async (): Promise<Testimonial[]> => {
   const reviews = await prisma.review.findMany({
     where: { isApproved: true, rating: { gte: 4 }, comment: { not: null } },
     include: { user: true, order: { include: { shippingAddress: true } } },
@@ -179,7 +199,7 @@ export async function getFeaturedTestimonials(): Promise<Testimonial[]> {
       avatarUrl: r.user.avatarUrl ?? placeholderImage(name.slice(0, 2).toUpperCase(), { size: 128 }),
     };
   });
-}
+});
 
 /** "Priya Sharma" -> "Priya S." — enough to feel real without exposing a full name. */
 function reviewerDisplayName(fullName: string | null): string {
@@ -190,7 +210,7 @@ function reviewerDisplayName(fullName: string | null): string {
 }
 
 /** Approved reviews for a product page, newest first. */
-export async function getProductReviews(productId: string): Promise<ProductReview[]> {
+export const getProductReviews = cachedQuery("product-reviews", async (productId: string): Promise<ProductReview[]> => {
   const reviews = await prisma.review.findMany({
     where: { productId, isApproved: true },
     include: { user: { select: { fullName: true } } },
@@ -204,4 +224,4 @@ export async function getProductReviews(productId: string): Promise<ProductRevie
     author: reviewerDisplayName(r.user.fullName),
     createdAt: r.createdAt.toISOString(),
   }));
-}
+});

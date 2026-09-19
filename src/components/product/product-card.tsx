@@ -105,7 +105,7 @@ export function ProductCard({ product }: { product: Product }) {
             onClick={handleToggleWishlist}
             aria-label="Toggle wishlist"
             aria-pressed={wishlisted}
-            className="flex size-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:text-accent"
+            className="flex size-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm transition-colors hover:text-accent"
           >
             <Heart className={cn("size-4", wishlisted && "fill-accent text-accent")} />
           </button>

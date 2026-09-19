@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CATALOG_TAG } from "@/lib/data/storefront";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { bannerInputSchema } from "@/lib/validation/admin";
@@ -49,6 +50,7 @@ export async function saveBannerAction(input: unknown): Promise<ActionResult> {
       : await prisma.banner.create({ data });
 
     revalidatePath("/admin/banners");
+    updateTag(CATALOG_TAG);
     revalidatePath("/", "layout");
     return { id: banner.id };
   } catch {
@@ -64,6 +66,7 @@ export async function deleteBannerAction(id: string): Promise<ActionResult> {
     return { error: "Could not delete banner." };
   }
   revalidatePath("/admin/banners");
+  updateTag(CATALOG_TAG);
   revalidatePath("/", "layout");
   return {};
 }
@@ -75,6 +78,7 @@ export async function toggleBannerActiveAction(
   await requireAdmin();
   await prisma.banner.update({ where: { id }, data: { isActive } });
   revalidatePath("/admin/banners");
+  updateTag(CATALOG_TAG);
   revalidatePath("/", "layout");
   return {};
 }

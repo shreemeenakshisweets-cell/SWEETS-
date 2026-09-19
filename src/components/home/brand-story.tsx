@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { BUSINESS } from "@/lib/business";
 
-const DEFAULT_IMAGE_URL = "/backgrounds/dancer-motif.png";
+const DEFAULT_IMAGE_URL = "/backgrounds/dancer-motif.webp";
 
 export function BrandStory({
   imageUrl,

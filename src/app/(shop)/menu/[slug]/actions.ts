@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CATALOG_TAG } from "@/lib/data/storefront";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -79,6 +80,7 @@ export async function submitReviewAction(input: unknown): Promise<ActionResult> 
   }
 
   revalidatePath(`/menu/${product.slug}`);
+  updateTag(CATALOG_TAG);
   revalidatePath("/");
   return { success: true };
 }
