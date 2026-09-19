@@ -274,6 +274,23 @@ model HomepageContent {
   @@map("homepage_content")
 }
 
+// One row per phone-OTP delivery request. Exists purely for abuse control
+// (call/message limits per number and per IP, and a cap on wrong-code guesses
+// per verification session) — never holds the code itself.
+model OtpRequest {
+  id        String   @id @default(uuid()) @db.Uuid
+  phone     String
+  ip        String?
+  sessionId String?
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([phone, createdAt])
+  @@index([ip, createdAt])
+  @@index([sessionId])
+  @@map("otp_requests")
+}
+
 model Banner {
   id            String   @id @default(uuid()) @db.Uuid
   eyebrow       String?

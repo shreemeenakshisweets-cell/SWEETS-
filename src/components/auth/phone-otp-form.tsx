@@ -47,7 +47,7 @@ export function PhoneOtpForm() {
       toast.error(result.error);
       return false;
     }
-    toast.success("We sent a 6-digit code to your phone");
+    toast.success("Calling you now — answer to hear your 6-digit code");
     setResendIn(RESEND_SECONDS);
     return true;
   }
@@ -89,8 +89,8 @@ export function PhoneOtpForm() {
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {step === "phone"
-            ? "We'll send you a one-time 6-digit code."
-            : `Enter the code sent to +91 ${phone}`}
+            ? "We'll call you with a one-time 6-digit code."
+            : `Enter the 6-digit code from the call to +91 ${phone}`}
         </p>
       </div>
 
@@ -138,7 +138,7 @@ export function PhoneOtpForm() {
               disabled={resendIn > 0 || loading}
               className="text-primary hover:underline disabled:text-muted-foreground disabled:no-underline"
             >
-              {resendIn > 0 ? `Resend code in ${resendIn}s` : "Resend code"}
+              {resendIn > 0 ? `Call again in ${resendIn}s` : "Call me again"}
             </button>
           </div>
           <button

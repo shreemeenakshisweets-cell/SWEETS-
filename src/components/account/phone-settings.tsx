@@ -50,7 +50,7 @@ export function PhoneSettings({
       toast.error(result.error);
       return false;
     }
-    toast.success("We sent a 6-digit code to your phone");
+    toast.success("Calling you now — answer to hear your 6-digit code");
     setResendIn(RESEND_SECONDS);
     return true;
   }
@@ -139,7 +139,7 @@ export function PhoneSettings({
         </form>
       ) : (
         <form onSubmit={handleVerify} className="flex flex-col gap-3">
-          <p className="text-sm text-muted-foreground">Enter the code sent to +91 {phone}</p>
+          <p className="text-sm text-muted-foreground">Enter the 6-digit code from the call to +91 {phone}</p>
           <InputOTP maxLength={6} value={code} onChange={setCode}>
             <InputOTPGroup>
               {Array.from({ length: 6 }).map((_, i) => (
@@ -157,7 +157,7 @@ export function PhoneSettings({
               disabled={resendIn > 0 || loading}
               className="text-xs text-primary hover:underline disabled:text-muted-foreground disabled:no-underline"
             >
-              {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend code"}
+              {resendIn > 0 ? `Call again in ${resendIn}s` : "Call me again"}
             </button>
             <Button type="button" variant="ghost" onClick={() => setEditing(false)}>
               Cancel

@@ -7,7 +7,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { sendWhatsAppOtp, verifyWhatsAppOtp } from "@/lib/whatsapp-otp";
+// TEMPORARY: voice-call codes until 2Factor's WhatsApp service is ready (see lib/twofactor.ts).
+import { sendVoiceOtp, verifyVoiceOtp } from "@/lib/twofactor";
 import { normalizePhone } from "@/lib/utils/phone";
 import {
   emailOnlySchema,
@@ -93,8 +94,8 @@ export async function verifyOtpAction(input: unknown): Promise<ActionResult> {
 }
 
 /**
- * Sends a WhatsApp OTP to sign in (or, for a brand-new number, sign up)
- * with a phone number. WhatsApp isn't one of Supabase's native phone-auth
+ * Sends a one-time code by voice call to sign in (or, for a brand-new number, sign up)
+ * with a phone number. Voice-call OTP isn't one of Supabase's native phone-auth
  * providers (Twilio/MessageBird/Vonage/TextLocal only), so the OTP itself
  * is sent and checked entirely outside Supabase — see verifyPhoneOtpAction
  * for how a verified number gets bridged into a real Supabase session.
@@ -103,12 +104,12 @@ export async function requestPhoneOtpAction(input: unknown): Promise<ActionResul
   const parsed = phoneOnlySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const result = await sendWhatsAppOtp(parsed.data.phone);
+  const result = await sendVoiceOtp(parsed.data.phone);
   return result.success ? { success: true } : { error: result.error };
 }
 
 /**
- * On a correct WhatsApp code, bridges the verified phone into a real Supabase
+ * On a correct voice-call code, bridges the verified phone into a real Supabase
  * session (via the service-role Admin API, since there's no native
  * phone-provider flow to lean on) — how depends on what's already on the
  * matching account:
@@ -129,7 +130,7 @@ export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult
   const parsed = phoneOtpVerifySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const verified = await verifyWhatsAppOtp(parsed.data.phone, parsed.data.token);
+  const verified = await verifyVoiceOtp(parsed.data.phone, parsed.data.token);
   if (!verified.success) return { error: verified.error };
 
   const phone = normalizePhone(parsed.data.phone);
@@ -177,20 +178,20 @@ export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult
 /**
  * Adds a phone number to the *currently signed-in* account (account
  * settings "Add phone number", not the login flow) — sends the
- * confirmation OTP over WhatsApp.
+ * confirmation code by voice call.
  */
 export async function requestLinkPhoneAction(input: unknown): Promise<ActionResult> {
   const parsed = phoneOnlySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const result = await sendWhatsAppOtp(parsed.data.phone);
+  const result = await sendVoiceOtp(parsed.data.phone);
   return result.success ? { success: true } : { error: result.error };
 }
 
 /**
- * On a correct WhatsApp code, attaches the phone directly to the signed-in
+ * On a correct voice-call code, attaches the phone directly to the signed-in
  * user via the Admin API (phone_confirm: true — we already did the real
- * verification ourselves via WhatsApp). Supabase itself rejects this if the
+ * verification ourselves via the voice-call code). Supabase itself rejects this if the
  * phone is already confirmed on a *different* account, which is what
  * enforces "a verified phone can't be linked to multiple accounts."
  */
@@ -198,7 +199,7 @@ export async function verifyLinkPhoneAction(input: unknown): Promise<ActionResul
   const parsed = phoneOtpVerifySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const verified = await verifyWhatsAppOtp(parsed.data.phone, parsed.data.token);
+  const verified = await verifyVoiceOtp(parsed.data.phone, parsed.data.token);
   if (!verified.success) return { error: verified.error };
 
   const user = await getCurrentUser();
@@ -219,7 +220,7 @@ export async function verifyLinkPhoneAction(input: unknown): Promise<ActionResul
  * Checkout step-up re-verification (see CheckoutView) — re-confirms
  * possession of the phone *already verified on the signed-in account*
  * before an order is placed. Deliberately separate from the login
- * actions above: no Supabase user mutation here, just a WhatsApp
+ * actions above: no Supabase user mutation here, just a voice-call
  * send/verify gated on the phone matching this account's own.
  */
 export async function requestCheckoutOtpAction(input: unknown): Promise<ActionResult> {
@@ -231,7 +232,7 @@ export async function requestCheckoutOtpAction(input: unknown): Promise<ActionRe
     return { error: "That doesn't match the phone number on your account." };
   }
 
-  const result = await sendWhatsAppOtp(parsed.data.phone);
+  const result = await sendVoiceOtp(parsed.data.phone);
   return result.success ? { success: true } : { error: result.error };
 }
 
@@ -244,7 +245,7 @@ export async function verifyCheckoutOtpAction(input: unknown): Promise<ActionRes
     return { error: "That doesn't match the phone number on your account." };
   }
 
-  const result = await verifyWhatsAppOtp(parsed.data.phone, parsed.data.token);
+  const result = await verifyVoiceOtp(parsed.data.phone, parsed.data.token);
   return result.success ? { success: true } : { error: result.error };
 }
 

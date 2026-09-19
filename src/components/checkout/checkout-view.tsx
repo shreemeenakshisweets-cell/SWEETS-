@@ -117,7 +117,7 @@ export function CheckoutView({
       toast.error(result.error);
       return;
     }
-    toast.success("We sent a 6-digit code to your phone");
+    toast.success("Calling you now — answer to hear your 6-digit code");
     setOtpStep("code");
     setOtpResendIn(OTP_RESEND_SECONDS);
   }
@@ -350,7 +350,7 @@ export function CheckoutView({
           {phoneVerified && (
             <div className="mt-4 flex items-center gap-2 rounded-lg bg-secondary/40 px-3 py-2 text-xs text-foreground/80">
               <ShieldCheck className="size-3.5 shrink-0 text-primary" />
-              We&apos;ll confirm +91 {phoneDigits} with a one-time code before placing your order.
+              We&apos;ll call +91 {phoneDigits} with a one-time code to confirm your order.
             </div>
           )}
 
@@ -392,7 +392,7 @@ export function CheckoutView({
           ) : (
             <form onSubmit={verifyCheckoutOtp} className="flex flex-col gap-4">
               <p className="text-sm text-muted-foreground">
-                Enter the 6-digit code sent to +91 {phoneDigits} to confirm this order.
+                Enter the 6-digit code from the call to +91 {phoneDigits} to confirm this order.
               </p>
               <div className="flex justify-center">
                 <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
@@ -412,7 +412,7 @@ export function CheckoutView({
                 disabled={otpResendIn > 0 || otpLoading}
                 className="text-center text-xs text-primary hover:underline disabled:text-muted-foreground disabled:no-underline"
               >
-                {otpResendIn > 0 ? `Resend code in ${otpResendIn}s` : "Resend code"}
+                {otpResendIn > 0 ? `Call again in ${otpResendIn}s` : "Call me again"}
               </button>
             </form>
           )}
