@@ -17,8 +17,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { saveCategoryAction } from "@/app/admin/categories/actions";
+import { saveCategoryAction, uploadCategoryImageAction } from "@/app/admin/categories/actions";
 import { categoryInputSchema, type CategoryInput } from "@/lib/validation/admin";
+import { ImageDropzone } from "@/components/admin/image-dropzone";
 import type { Category } from "@/generated/prisma/client";
 import { getActionErrorMessage } from "@/lib/utils/errors";
 
@@ -108,8 +109,13 @@ export function CategoryFormDialog({
             <Textarea id="description" rows={2} {...register("description")} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="imageUrl">Image URL</Label>
-            <Input id="imageUrl" {...register("imageUrl")} />
+            <Label>Photo</Label>
+            <ImageDropzone
+              value={watch("imageUrl") ? [watch("imageUrl") as string] : []}
+              onChange={(urls) => setValue("imageUrl", urls[urls.length - 1] ?? "")}
+              uploadAction={uploadCategoryImageAction}
+              maxSizeLabel="5MB"
+            />
             {errors.imageUrl && (
               <p className="text-xs text-destructive">{errors.imageUrl.message}</p>
             )}
