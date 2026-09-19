@@ -5,8 +5,10 @@ import {
   getAllProductSlugs,
   getCategoryBySlug,
   getProductBySlug,
+  getProductReviews,
   getProductsByCategory,
 } from "@/lib/data/storefront";
+import { getReviewAccess } from "@/lib/data/reviews";
 
 export async function generateStaticParams() {
   const slugs = await getAllProductSlugs();
@@ -42,11 +44,21 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const [category, sameCategory] = await Promise.all([
+  const [category, sameCategory, reviews, reviewAccess] = await Promise.all([
     getCategoryBySlug(product.categorySlug),
     getProductsByCategory(product.categorySlug),
+    getProductReviews(product.id),
+    getReviewAccess(product.id),
   ]);
   const related = sameCategory.filter((p) => p.id !== product.id).slice(0, 4);
 
-  return <ProductDetail product={product} category={category ?? undefined} related={related} />;
+  return (
+    <ProductDetail
+      product={product}
+      category={category ?? undefined}
+      related={related}
+      reviews={reviews}
+      reviewAccess={reviewAccess}
+    />
+  );
 }

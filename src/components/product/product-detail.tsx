@@ -12,23 +12,32 @@ import { Separator } from "@/components/ui/separator";
 import { RatingStars } from "@/components/product/rating-stars";
 import { ProductTagBadge } from "@/components/product/product-tag-badge";
 import { ProductCard } from "@/components/product/product-card";
+import { ProductReviews } from "@/components/product/product-reviews";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { toggleWishlistAction } from "@/app/(shop)/account/wishlist/actions";
+import { DELIVERY_FEE, FREE_DELIVERY_THRESHOLD } from "@/lib/pricing";
 import { formatCurrency } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils";
-import type { Category, Product } from "@/types/catalog";
+import type { ReviewAccess } from "@/lib/data/reviews";
+import type { Category, Product, ProductReview } from "@/types/catalog";
 
 export function ProductDetail({
   product,
   category,
   related,
+  reviews,
+  reviewAccess,
 }: {
   product: Product;
   category: Category | undefined;
   related: Product[];
+  reviews: ProductReview[];
+  reviewAccess: ReviewAccess;
 }) {
   const router = useRouter();
+  const [activeImage, setActiveImage] = React.useState(0);
   const [selectedVariantId, setSelectedVariantId] = React.useState(
     product.variants.find((v) => v.isDefault)?.id ?? product.variants[0].id
   );
@@ -54,6 +63,57 @@ export function ProductDetail({
   const discountPct = variant.compareAtPrice
     ? Math.round((1 - variant.price / variant.compareAtPrice) * 100)
     : 0;
+
+  // Tabs only for details that have content — Delivery is always shown.
+  const detailTabs: { value: string; label: string; body: React.ReactNode }[] = [];
+  if (product.ingredients) {
+    detailTabs.push({
+      value: "ingredients",
+      label: "Ingredients",
+      body: <p className="whitespace-pre-line">{product.ingredients}</p>,
+    });
+  }
+  if (product.nutritionInfo) {
+    detailTabs.push({
+      value: "nutrition",
+      label: "Nutrition",
+      body: <p className="whitespace-pre-line">{product.nutritionInfo}</p>,
+    });
+  }
+  if (product.shelfLife || product.storageInfo) {
+    detailTabs.push({
+      value: "shelf-life",
+      label: "Shelf life & storage",
+      body: (
+        <div className="flex flex-col gap-2">
+          {product.shelfLife && (
+            <p>
+              <span className="font-medium text-foreground">Shelf life:</span> {product.shelfLife}
+            </p>
+          )}
+          {product.storageInfo && (
+            <p>
+              <span className="font-medium text-foreground">Storage:</span> {product.storageInfo}
+            </p>
+          )}
+        </div>
+      ),
+    });
+  }
+  detailTabs.push({
+    value: "delivery",
+    label: "Delivery",
+    body: (
+      <ul className="flex list-disc flex-col gap-1.5 pl-5">
+        <li>We deliver across India.</li>
+        <li>
+          Free delivery on orders above {formatCurrency(FREE_DELIVERY_THRESHOLD)}; a{" "}
+          {formatCurrency(DELIVERY_FEE)} delivery fee applies on smaller orders.
+        </li>
+        <li>Every order is packed hygienically and securely.</li>
+      </ul>
+    ),
+  });
 
   function handleAdd() {
     addItem(
@@ -102,21 +162,47 @@ export function ProductDetail({
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4 }}
-          className="relative aspect-square overflow-hidden rounded-3xl border border-border bg-muted"
+          className="flex flex-col gap-3"
         >
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            priority
-            sizes="(min-width: 1024px) 560px, 90vw"
-            className="object-cover saturate-[1.12] contrast-[1.04]"
-          />
-          <div className="absolute left-4 top-4 flex flex-col gap-1.5">
-            {product.tags.map((tag) => (
-              <ProductTagBadge key={tag} tag={tag} />
-            ))}
+          <div className="relative aspect-square overflow-hidden rounded-3xl border border-border bg-muted">
+            <Image
+              key={product.images[activeImage]}
+              src={product.images[activeImage]}
+              alt={product.name}
+              fill
+              priority={activeImage === 0}
+              sizes="(min-width: 1024px) 560px, 90vw"
+              className="object-cover saturate-[1.12] contrast-[1.04]"
+            />
+            <div className="absolute left-4 top-4 flex flex-col gap-1.5">
+              {product.tags.map((tag) => (
+                <ProductTagBadge key={tag} tag={tag} />
+              ))}
+            </div>
           </div>
+
+          {product.images.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Product photos">
+              {product.images.map((src, i) => (
+                <button
+                  key={src}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === activeImage}
+                  aria-label={`Show photo ${i + 1} of ${product.images.length}`}
+                  onClick={() => setActiveImage(i)}
+                  className={cn(
+                    "relative size-16 shrink-0 overflow-hidden rounded-xl border-2 bg-muted transition-all sm:size-20",
+                    i === activeImage
+                      ? "border-primary"
+                      : "border-transparent opacity-70 hover:opacity-100"
+                  )}
+                >
+                  <Image src={src} alt="" fill sizes="80px" className="object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </motion.div>
 
         <motion.div
@@ -224,6 +310,36 @@ export function ProductDetail({
           </div>
         </motion.div>
       </div>
+
+      <section className="mt-12" aria-label="Product details">
+        <Tabs defaultValue={detailTabs[0].value}>
+          <TabsList variant="line" className="w-full justify-start gap-4 overflow-x-auto">
+            {detailTabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className="flex-none px-1">
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {detailTabs.map((tab) => (
+            <TabsContent
+              key={tab.value}
+              value={tab.value}
+              className="mt-4 max-w-3xl text-sm leading-relaxed text-foreground/80"
+            >
+              {tab.body}
+            </TabsContent>
+          ))}
+        </Tabs>
+      </section>
+
+      <ProductReviews
+        productId={product.id}
+        productSlug={product.slug}
+        ratingAverage={product.ratingAverage}
+        ratingCount={product.ratingCount}
+        reviews={reviews}
+        access={reviewAccess}
+      />
 
       {related.length > 0 && (
         <section className="mt-16">

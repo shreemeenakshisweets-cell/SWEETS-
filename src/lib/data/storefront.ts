@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { placeholderImage } from "@/lib/data/placeholder-image";
-import type { Category, Product, ProductTag, Testimonial } from "@/types/catalog";
+import type { Category, Product, ProductReview, ProductTag, Testimonial } from "@/types/catalog";
 
 const productInclude = {
   category: true,
@@ -35,6 +35,10 @@ function mapProduct(p: ProductWithRelations): Product {
     categorySlug: p.category.slug,
     shortDescription: p.description,
     description: p.description,
+    ingredients: p.ingredients ?? undefined,
+    nutritionInfo: p.nutritionInfo ?? undefined,
+    shelfLife: p.shelfLife ?? undefined,
+    storageInfo: p.storageInfo ?? undefined,
     images: p.images.length > 0 ? p.images : [placeholderImage(p.name)],
     isVeg: p.isVeg,
     isFeatured: p.isFeatured,
@@ -175,4 +179,29 @@ export async function getFeaturedTestimonials(): Promise<Testimonial[]> {
       avatarUrl: r.user.avatarUrl ?? placeholderImage(name.slice(0, 2).toUpperCase(), { size: 128 }),
     };
   });
+}
+
+/** "Priya Sharma" -> "Priya S." — enough to feel real without exposing a full name. */
+function reviewerDisplayName(fullName: string | null): string {
+  const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "Verified Customer";
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.`;
+}
+
+/** Approved reviews for a product page, newest first. */
+export async function getProductReviews(productId: string): Promise<ProductReview[]> {
+  const reviews = await prisma.review.findMany({
+    where: { productId, isApproved: true },
+    include: { user: { select: { fullName: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+  return reviews.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.comment ?? "",
+    author: reviewerDisplayName(r.user.fullName),
+    createdAt: r.createdAt.toISOString(),
+  }));
 }

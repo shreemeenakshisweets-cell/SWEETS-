@@ -31,6 +31,16 @@ export const variantInputSchema = z.object({
 });
 export type VariantInput = z.input<typeof variantInputSchema>;
 
+// Optional free-text product detail. Blank is allowed here; saveProductAction
+// turns "" into null so a cleared box removes the stored value.
+const optionalDetail = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max, `Keep this under ${max} characters`)
+    .optional()
+    .or(z.literal(""));
+
 export const productInputSchema = z.object({
   id: z.string().uuid().optional(), // present when editing
   categoryId: z.string().uuid("Select a category"),
@@ -41,6 +51,10 @@ export const productInputSchema = z.object({
     .min(2, "Enter a slug")
     .regex(/^[a-z0-9-]+$/, "Lowercase letters, numbers and hyphens only"),
   description: z.string().trim().min(10, "Enter a description"),
+  ingredients: optionalDetail(1000),
+  nutritionInfo: optionalDetail(1500),
+  shelfLife: optionalDetail(200),
+  storageInfo: optionalDetail(500),
   images: z.array(z.string().trim().url()).min(1, "Add at least one image URL"),
   isVeg: z.boolean(),
   isFeatured: z.boolean(),

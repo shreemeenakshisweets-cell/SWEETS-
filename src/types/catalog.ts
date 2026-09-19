@@ -24,6 +24,10 @@ export interface Product {
   categorySlug: string;
   shortDescription: string;
   description: string;
+  ingredients?: string;
+  nutritionInfo?: string;
+  shelfLife?: string;
+  storageInfo?: string;
   images: string[];
   isVeg: boolean;
   isFeatured?: boolean;
@@ -57,4 +61,12 @@ export interface Promotion {
   code: string;
   imageUrl: string;
   ctaHref: string;
+}
+
+export interface ProductReview {
+  id: string;
+  rating: number;
+  comment: string;
+  author: string;
+  createdAt: string;
 }

@@ -36,7 +36,14 @@ export async function saveProductAction(input: unknown): Promise<ActionResult> {
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid product" };
   }
-  const { id, variants, ...fields } = parsed.data;
+  const { id, variants, ...rest } = parsed.data;
+  const fields = {
+    ...rest,
+    ingredients: rest.ingredients || null,
+    nutritionInfo: rest.nutritionInfo || null,
+    shelfLife: rest.shelfLife || null,
+    storageInfo: rest.storageInfo || null,
+  };
 
   try {
     if (id) {

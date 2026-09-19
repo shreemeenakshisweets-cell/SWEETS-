@@ -149,6 +149,10 @@ model Product {
   name          String
   slug          String   @unique
   description   String
+  ingredients   String?
+  nutritionInfo String?
+  shelfLife     String?
+  storageInfo   String?
   images        String[]
   isVeg         Boolean  @default(true)
   isFeatured    Boolean  @default(false)

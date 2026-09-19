@@ -55,6 +55,10 @@ export function ProductForm({
           name: product.name,
           slug: product.slug,
           description: product.description,
+          ingredients: product.ingredients ?? "",
+          nutritionInfo: product.nutritionInfo ?? "",
+          shelfLife: product.shelfLife ?? "",
+          storageInfo: product.storageInfo ?? "",
           images: product.images,
           isVeg: product.isVeg,
           isFeatured: product.isFeatured,
@@ -76,6 +80,10 @@ export function ProductForm({
           name: "",
           slug: "",
           description: "",
+          ingredients: "",
+          nutritionInfo: "",
+          shelfLife: "",
+          storageInfo: "",
           images: [],
           isVeg: true,
           isFeatured: false,
@@ -126,6 +134,60 @@ export function ProductForm({
         {errors.description && (
           <p className="text-xs text-destructive">{errors.description.message}</p>
         )}
+      </div>
+
+      <div className="flex flex-col gap-4 rounded-2xl border border-border p-4">
+        <div>
+          <p className="text-sm font-medium text-foreground">Product details</p>
+          <p className="text-xs text-muted-foreground">
+            Shown as tabs on the product page. Leave a box empty to hide that tab.
+          </p>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="ingredients">Ingredients</Label>
+          <Textarea
+            id="ingredients"
+            rows={2}
+            placeholder="Bengal gram flour, sugar, ghee, milk solids"
+            {...register("ingredients")}
+          />
+          {errors.ingredients && (
+            <p className="text-xs text-destructive">{errors.ingredients.message}</p>
+          )}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="nutritionInfo">Nutrition information</Label>
+          <Textarea
+            id="nutritionInfo"
+            rows={4}
+            placeholder={"Per 100 g\nEnergy: 586 kcal\nFat: 41.3 g\nCarbohydrates: 50.1 g"}
+            {...register("nutritionInfo")}
+          />
+          <p className="text-xs text-muted-foreground">One item per line, exactly as it should appear.</p>
+          {errors.nutritionInfo && (
+            <p className="text-xs text-destructive">{errors.nutritionInfo.message}</p>
+          )}
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="shelfLife">Shelf life</Label>
+            <Input id="shelfLife" placeholder="45 days" {...register("shelfLife")} />
+            {errors.shelfLife && (
+              <p className="text-xs text-destructive">{errors.shelfLife.message}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="storageInfo">Storage instructions</Label>
+            <Input
+              id="storageInfo"
+              placeholder="Store in a cool, dry place"
+              {...register("storageInfo")}
+            />
+            {errors.storageInfo && (
+              <p className="text-xs text-destructive">{errors.storageInfo.message}</p>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
