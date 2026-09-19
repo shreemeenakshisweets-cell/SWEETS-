@@ -134,7 +134,7 @@ export function ImageDropzone({
                   e.stopPropagation();
                   removeImage(url);
                 }}
-                className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white transition-colors hover:bg-black/80"
                 aria-label="Remove image"
               >
                 <X className="size-3.5" />
