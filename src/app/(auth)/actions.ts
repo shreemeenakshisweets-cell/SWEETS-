@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { sendMsg91Otp, verifyMsg91Otp } from "@/lib/msg91";
+import { sendTwoFactorOtp, verifyTwoFactorOtp } from "@/lib/twofactor";
 import { normalizePhone } from "@/lib/utils/phone";
 import {
   emailOnlySchema,
@@ -93,8 +93,8 @@ export async function verifyOtpAction(input: unknown): Promise<ActionResult> {
 }
 
 /**
- * Sends an OTP via MSG91 to sign in (or, for a brand-new number, sign up)
- * with a phone number. MSG91 isn't one of Supabase's native phone-auth
+ * Sends an OTP via 2Factor to sign in (or, for a brand-new number, sign up)
+ * with a phone number. 2Factor isn't one of Supabase's native phone-auth
  * providers (Twilio/MessageBird/Vonage/TextLocal only), so the OTP itself
  * is sent and checked entirely outside Supabase — see verifyPhoneOtpAction
  * for how a verified number gets bridged into a real Supabase session.
@@ -103,12 +103,12 @@ export async function requestPhoneOtpAction(input: unknown): Promise<ActionResul
   const parsed = phoneOnlySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const result = await sendMsg91Otp(parsed.data.phone);
+  const result = await sendTwoFactorOtp(parsed.data.phone);
   return result.success ? { success: true } : { error: result.error };
 }
 
 /**
- * On a correct MSG91 code, bridges the verified phone into a real Supabase
+ * On a correct 2Factor code, bridges the verified phone into a real Supabase
  * session (via the service-role Admin API, since there's no native
  * phone-provider flow to lean on) — how depends on what's already on the
  * matching account:
@@ -129,7 +129,7 @@ export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult
   const parsed = phoneOtpVerifySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const verified = await verifyMsg91Otp(parsed.data.phone, parsed.data.token);
+  const verified = await verifyTwoFactorOtp(parsed.data.phone, parsed.data.token);
   if (!verified.success) return { error: verified.error };
 
   const phone = normalizePhone(parsed.data.phone);
@@ -177,20 +177,20 @@ export async function verifyPhoneOtpAction(input: unknown): Promise<ActionResult
 /**
  * Adds a phone number to the *currently signed-in* account (account
  * settings "Add phone number", not the login flow) — sends the
- * confirmation OTP via MSG91.
+ * confirmation OTP via 2Factor.
  */
 export async function requestLinkPhoneAction(input: unknown): Promise<ActionResult> {
   const parsed = phoneOnlySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const result = await sendMsg91Otp(parsed.data.phone);
+  const result = await sendTwoFactorOtp(parsed.data.phone);
   return result.success ? { success: true } : { error: result.error };
 }
 
 /**
- * On a correct MSG91 code, attaches the phone directly to the signed-in
+ * On a correct 2Factor code, attaches the phone directly to the signed-in
  * user via the Admin API (phone_confirm: true — we already did the real
- * verification ourselves via MSG91). Supabase itself rejects this if the
+ * verification ourselves via 2Factor). Supabase itself rejects this if the
  * phone is already confirmed on a *different* account, which is what
  * enforces "a verified phone can't be linked to multiple accounts."
  */
@@ -198,7 +198,7 @@ export async function verifyLinkPhoneAction(input: unknown): Promise<ActionResul
   const parsed = phoneOtpVerifySchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const verified = await verifyMsg91Otp(parsed.data.phone, parsed.data.token);
+  const verified = await verifyTwoFactorOtp(parsed.data.phone, parsed.data.token);
   if (!verified.success) return { error: verified.error };
 
   const user = await getCurrentUser();
@@ -219,7 +219,7 @@ export async function verifyLinkPhoneAction(input: unknown): Promise<ActionResul
  * Checkout step-up re-verification (see CheckoutView) — re-confirms
  * possession of the phone *already verified on the signed-in account*
  * before an order is placed. Deliberately separate from the login
- * actions above: no Supabase user mutation here, just an MSG91
+ * actions above: no Supabase user mutation here, just a 2Factor
  * send/verify gated on the phone matching this account's own.
  */
 export async function requestCheckoutOtpAction(input: unknown): Promise<ActionResult> {
@@ -231,7 +231,7 @@ export async function requestCheckoutOtpAction(input: unknown): Promise<ActionRe
     return { error: "That doesn't match the phone number on your account." };
   }
 
-  const result = await sendMsg91Otp(parsed.data.phone);
+  const result = await sendTwoFactorOtp(parsed.data.phone);
   return result.success ? { success: true } : { error: result.error };
 }
 
@@ -244,7 +244,7 @@ export async function verifyCheckoutOtpAction(input: unknown): Promise<ActionRes
     return { error: "That doesn't match the phone number on your account." };
   }
 
-  const result = await verifyMsg91Otp(parsed.data.phone, parsed.data.token);
+  const result = await verifyTwoFactorOtp(parsed.data.phone, parsed.data.token);
   return result.success ? { success: true } : { error: result.error };
 }
 
